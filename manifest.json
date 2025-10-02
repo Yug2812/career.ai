@@ -1,0 +1,20 @@
+{
+  "name": "CareerGuide.ai",
+  "short_name": "CareerGuide",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4a4aff",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/devicons/devicon/v2.1.0/icons/react/react-original.svg",
+      "sizes": "192x192",
+      "type": "image/svg"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/devicons/devicon/v2.1.0/icons/react/react-original.svg",
+      "sizes": "512x512",
+      "type": "image/svg"
+    }
+  ]
+}

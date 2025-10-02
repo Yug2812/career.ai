@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CareerGuide.ai</title>
+    <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/devicons/devicon/v2.1.0/icons/react/react-original.svg" />
+    <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/devicons/devicon/v2.1.0/icons/react/react-original.svg" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="manifest" href="manifest.json" />
+    
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top" id="mainNavbar">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="#" id="logoLink">
+                <span class="logo-text">CareerGuide.ai</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto" id="navLinks">
+                    </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div id="content">
+        <div id="landingPage" class="d-flex flex-column min-vh-100">
+            <header class="hero-section">
+                <div class="container">
+                    <h1 class="display-3 fw-bold mb-3">Your Career, Your Way.</h1>
+                    <p class="lead mb-4">Discover the career path that aligns perfectly with your unique skills, interests, and aspirations, powered by AI.</p>
+                    <button class="btn btn-light btn-lg fw-bold" data-page="loginPage">Get Your Personalized Guide</button>
+                </div>
+            </header>
+
+            <section class="container my-5">
+                <h2 class="text-center mb-5 fw-bold">How It Works</h2>
+                <div class="row text-center g-4">
+                    <div class="col-md-4">
+                        <div class="card p-4 h-100">
+                            <div class="card-body">
+                                <div class="feature-icon"><i class="fas fa-user-circle"></i></div>
+                                <h5 class="card-title fw-bold">Create Your Profile</h5>
+                                <p class="card-text">Answer a quick questionnaire about your interests and skills to build your unique profile.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card p-4 h-100">
+                            <div class="card-body">
+                                <div class="feature-icon"><i class="fas fa-brain"></i></div>
+                                <h5 class="card-title fw-bold">AI Analyzes Your Data</h5>
+                                <p class="card-text">Our intelligent system matches your profile to relevant career paths from our extensive database.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card p-4 h-100">
+                            <div class="card-body">
+                                <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
+                                <h5 class="card-title fw-bold">Get Your Personalized Plan</h5>
+                                <p class="card-text">Receive a tailored roadmap to your dream career, including skills to learn and steps to take.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        
+        <div id="loginPage" class="d-none d-flex flex-column min-vh-100">
+            <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-center">
+                <div class="login-card p-5">
+                    <h2 class="text-center mb-4 text-primary fw-bold">Sign In to Your Account</h2>
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label for="loginEmail" class="form-label">Email address</label>
+                            <input type="email" class="form-control" id="loginEmail" required />
+                        </div>
+                        <div class="mb-4">
+                            <label for="loginPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="loginPassword" required />
+                        </div>
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-primary w-100 fw-bold">Sign In</button>
+                        </div>
+                        <div class="text-center mb-3">
+                            <a href="#" class="text-muted text-decoration-none" data-page="forgotPasswordPage">Forgot password?</a>
+                        </div>
+                        <div class="d-flex align-items-center mb-3">
+                            <hr class="flex-grow-1 me-3" />
+                            <span class="text-muted">Or</span>
+                            <hr class="flex-grow-1 ms-3" />
+                        </div>
+                        <div class="d-flex justify-content-center mb-4">
+                            <a href="#" class="btn btn-social-icon btn-google rounded-circle mx-2" title="Sign in with Google">
+                                <i class="fab fa-google"></i>
+                            </a>
+                            <a href="#" class="btn btn-social-icon btn-facebook rounded-circle mx-2" title="Sign in with Facebook">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="#" class="btn btn-social-icon btn-github rounded-circle mx-2" title="Sign in with GitHub">
+                                <i class="fab fa-github"></i>
+                            </a>
+                        </div>
+                    </form>
+                    <p class="mt-4 text-center">Don't have an account? <a href="#" data-page="registerPage" class="text-primary fw-bold">Sign Up here</a></p>
+                </div>
+            </div>
+        </div>
+
+        <div id="registerPage" class="d-none d-flex flex-column min-vh-100">
+            <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-center">
+                <div class="register-card p-5">
+                    <h2 class="text-center mb-4 text-primary fw-bold">Sign Up for an Account</h2>
+                    <form id="registerForm">
+                        <div class="mb-3">
+                            <label for="regName" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="regName" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="regEmail" class="form-label">Email address</label>
+                            <input type="email" class="form-control" id="regEmail" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="regPhone" class="form-label">Phone Number (Optional)</label>
+                            <input type="tel" class="form-control" id="regPhone" />
+                        </div>
+                        <div class="mb-4">
+                            <label for="regPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="regPassword" required />
+                            <div class="form-text">Password must be at least 6 characters long.</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 fw-bold">Sign Up</button>
+                    </form>
+                    <div class="d-flex align-items-center mb-3 mt-4">
+                        <hr class="flex-grow-1 me-3" />
+                        <span class="text-muted">Or</span>
+                        <hr class="flex-grow-1 ms-3" />
+                    </div>
+                    <div class="d-flex justify-content-center mb-4">
+                        <a href="#" class="btn btn-social-icon btn-google rounded-circle mx-2" title="Sign in with Google">
+                            <i class="fab fa-google"></i>
+                        </a>
+                        <a href="#" class="btn btn-social-icon btn-facebook rounded-circle mx-2" title="Sign in with Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="btn btn-social-icon btn-github rounded-circle mx-2" title="Sign in with GitHub">
+                            <i class="fab fa-github"></i>
+                        </a>
+                    </div>
+                    <p class="mt-4 text-center">Already Registered? <a href="#" data-page="loginPage" class="text-primary fw-bold">Login</a></p>
+                </div>
+            </div>
+        </div>
+
+        <div id="helpPage" class="d-none d-flex flex-column min-vh-100">
+            <div class="help-page-layout d-flex flex-grow-1">
+                <div class="help-content-left p-5 d-flex flex-column justify-content-center">
+                    <h2 class="fw-bold text-white">Contact Us</h2>
+                    <p class="lead text-white-50">We are available for questions, feedback, or collaboration opportunities. Let us know how we can help!</p>
+                    <p class="text-white-50">
+                        You can also contact us at <a href="mailto:support@careerguide.ai" class="text-white text-decoration-none fw-bold">support@careerguide.ai</a> for any payment or course access related queries.
+                    </p>
+                </div>
+                <div class="help-form-right p-5 d-flex align-items-center justify-content-center">
+                    <div class="card p-5 shadow-lg w-100 help-form-card">
+                        <h4 class="card-title text-center fw-bold mb-4">Send a Message</h4>
+                        <form id="helpForm">
+                            <div class="mb-3">
+                                <label for="helpName" class="form-label">Your Name</label>
+                                <input type="text" class="form-control" id="helpName" required />
+                            </div>
+                            <div class="mb-3">
+                                <label for="helpEmail" class="form-label">Your Email</label>
+                                <input type="email" class="form-control" id="helpEmail" required />
+                            </div>
+                            <div class="mb-3">
+                                <label for="helpPhone" class="form-label">Phone Number (Optional)</label>
+                            <input type="tel" class="form-control" id="helpPhone" placeholder="Your 10-digit Indian Number" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="helpSubject" class="form-label">Subject</label>
+                                <input type="text" class="form-control" id="helpSubject" placeholder="Subject" required />
+                            </div>
+                            <div class="mb-4">
+                                <label for="helpQuestion" class="form-label">Message</label>
+                                <textarea class="form-control" id="helpQuestion" rows="4" placeholder="Type your message here..." required></textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary w-100 fw-bold">Send Message</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="dashboardPage" class="d-none">
+            <main class="container my-5">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card p-4 h-100">
+                            <div class="d-flex align-items-center mb-4">
+                                <i class="fas fa-user-circle feature-icon me-3"></i>
+                                <div>
+                                    <h5 class="card-title mb-0 fw-bold">Hello, <span id="userName">User</span>!</h5>
+                                    <p class="text-muted mb-0">Ready to explore your future?</p>
+                                </div>
+                            </div>
+                            <hr />
+                            <ul class="nav flex-column" id="dashboard-sidebar">
+                                <li class="nav-item mb-2">
+                                    <a class="btn btn-outline-primary w-100 text-start active" href="#" data-page-section="quizSection">
+                                        <i class="fas fa-pencil-alt me-2"></i>Start Career Quiz
+                                    </a>
+                                </li>
+                                <li class="nav-item mb-2">
+                                    <a class="btn btn-outline-primary w-100 text-start" href="#" data-page-section="recommendationsSection">
+                                        <i class="fas fa-lightbulb me-2"></i>Recommended Careers
+                                    </a>
+                                </li>
+                                <li class="nav-item mb-2">
+                                    <a class="btn btn-outline-primary w-100 text-start" href="#" data-page-section="skillsSection">
+                                        <i class="fas fa-cogs me-2"></i>Skill Gaps
+                                    </a>
+                                </li>
+                                <li class="nav-item mb-2">
+                                    <a class="btn btn-outline-primary w-100 text-start" href="#" data-page-section="resumeSection">
+                                        <i class="fas fa-file-alt me-2"></i>My Resume
+                                    </a>
+                                </li>
+                                <li class="nav-item mb-2">
+                                    <a class="btn btn-outline-primary w-100 text-start" href="#" data-page-section="resumeBuilderSection">
+                                        <i class="fas fa-id-card me-2"></i>AI Resume Builder
+                                    </a>
+                                </li>
+                                <li class="nav-item mb-2">
+                                    <a class="btn btn-outline-primary w-100 text-start" href="#" data-page-section="chatbotComingSoonSection">
+                                        <i class="fas fa-robot me-2"></i>AI Career Chatbot
+                                    </a>
+                                </li>
+                                <li class="nav-item mb-2">
+                                    <a class="btn btn-outline-primary w-100 text-start" href="#" data-page-section="profileSection">
+                                        <i class="fas fa-user-tie me-2"></i>Profile
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-8">
+                        <div class="card p-4 h-100">
+                            <div id="quizSection" class="content-section">
+                                <h3 class="mb-4 fw-bold">Career Exploration Quiz</h3>
+                                <p class="text-muted">Answer these questions to help us provide you with the best career recommendations.</p>
+                                <form id="careerQuizForm">
+                                    <div class="mb-4">
+                                        <label class="form-label d-block fw-bold">1. Which subject do you enjoy the most?</label>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="subject" id="mathRadio" value="math" required />
+                                            <label class="form-check-label" for="mathRadio">Mathematics</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="subject" id="scienceRadio" value="science" required />
+                                            <label class="form-check-label" for="scienceRadio">Science</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="subject" id="artsRadio" value="arts" required />
+                                            <label class="form-check-label" for="artsRadio">Arts & Humanities</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="subject" id="businessRadio" value="business" required />
+                                            <label class="form-check-label" for="businessRadio">Business & Finance</label>
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label d-block fw-bold">2. What kind of problem-solving do you prefer?</label>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="problem" id="logicRadio" value="logic" required />
+                                            <label class="form-check-label" for="logicRadio">Logical puzzles</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="problem" id="creativeRadio" value="creative" required />
+                                            <label class="form-check-label" for="creativeRadio">Creative challenges</label>
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label d-block fw-bold">3. What kind of projects do you find most interesting?</label>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="projects" id="techRadio" value="tech" required />
+                                            <label class="form-check-label" for="techRadio">Building software or gadgets</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="projects" id="designingRadio" value="designing" required />
+                                            <label class="form-check-label" for="designingRadio">Designing visual content</label>
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label d-block fw-bold">4. What kind of work environment do you prefer?</label>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="environment" id="soloRadio" value="solo" required />
+                                            <label class="form-check-label" for="soloRadio">Independent/Remote</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="environment" id="teamRadio" value="team" required />
+                                            <label class="form-check-label" for="teamRadio">Collaborative Team</label>
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label d-block fw-bold">5. What motivates you most in a career?</label>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="motivation" id="incomeRadio" value="income" required />
+                                            <label class="form-check-label" for="incomeRadio">High Income</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="motivation" id="impactRadio" value="impact" required />
+                                            <label class="form-check-label" for="impactRadio">Social Impact</label>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary fw-bold">Get My Career Recommendations</button>
+                                </form>
+                            </div>
+
+                            <div id="recommendationsSection" class="content-section d-none">
+                                <h3 class="mb-4 fw-bold">Recommended Careers</h3>
+                                <div id="recommendationsList" class="row g-4">
+                                    <p class="text-muted">Please complete the career quiz to see your personalized recommendations.</p>
+                                </div>
+                            </div>
+
+                            <div id="skillsSection" class="content-section d-none">
+                                <h3 class="mb-4 fw-bold">Skill Gaps</h3>
+                                <p class="text-muted">This section will analyze your current skills and compare them to your target career, providing a learning roadmap.</p>
+                                <div class="alert alert-info">Feature coming soon.</div>
+                            </div>
+                            
+                            <div id="resumeSection" class="content-section d-none">
+                                <h3 class="mb-4 fw-bold">My Resume</h3>
+                                <p class="text-muted">This section will allow you to upload your resume for AI-powered feedback and optimization.</p>
+                                <div class="alert alert-info">Feature coming soon.</div>
+                            </div>
+                            
+                            <div id="resumeBuilderSection" class="content-section d-none">
+                                <h3 class="mb-4 fw-bold">AI Resume Builder</h3>
+                                <p class="text-muted">Generate a professional resume tailored to your career goals and profile with our AI-powered builder.</p>
+                                <div class="alert alert-info">Feature coming soon.</div>
+                            </div>
+                            
+                            <div id="chatbotComingSoonSection" class="content-section d-none">
+                                <h3 class="mb-4 fw-bold">AI Career Chatbot</h3>
+                                <p class="text-muted">Our AI-powered career chatbot is currently under development to provide you with instant answers to your career-related questions.</p>
+                                <div class="alert alert-info">This feature is coming soon! Check back later for real-time guidance.</div>
+                            </div>
+                            
+                            <div id="profileSection" class="content-section d-none">
+                                <h3 class="mb-4 fw-bold">My Profile</h3>
+                                <p class="text-muted">Manage your personal information and career goals.</p>
+                                <div class="row g-4 mb-4">
+                                    <div class="col-md-6">
+                                        <div class="card p-4 h-100">
+                                            <h5>Username</h5>
+                                            <p id="profileName" class="text-muted fw-bold">Jane Doe</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card p-4 h-100">
+                                            <h5>Email Address</h5>
+                                            <p id="profileEmail" class="text-muted fw-bold">jane.doe@example.com</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <form>
+                                    <div class="mb-3">
+                                        <label for="problemDescription" class="form-label fw-bold">What career problem are you trying to solve?</label>
+                                        <textarea class="form-control" id="problemDescription" rows="4" placeholder="e.g., 'I want to switch from marketing to tech but don't know where to start.'"></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary fw-bold">Save Changes</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+        
+        <div id="forgotPasswordPage" class="d-none d-flex flex-column min-vh-100">
+            <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-center">
+                <div class="login-card p-5">
+                    <h2 class="text-center mb-4 text-primary fw-bold">Forgot Password</h2>
+                    <p class="text-center text-muted mb-4">Enter your email address to receive a password reset link.</p>
+                    <form id="forgotPasswordForm">
+                        <div class="mb-3">
+                            <label for="forgotEmail" class="form-label">Email address</label>
+                            <input type="email" class="form-control" id="forgotEmail" required />
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 fw-bold">Send Reset Link</button>
+                    </form>
+                    <p class="mt-4 text-center">Don't have an account? <a href="#" data-page="registerPage" class="text-primary fw-bold">Sign Up here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="unifiedFooter" class="mt-auto">
+        <footer class="text-center py-4">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-6">
+                        <a href="#" class="text-decoration-none d-block">Terms & Conditions</a>
+                    </div>
+                    <div class="col-6">
+                        <a href="#" class="text-decoration-none d-block">Customer Care</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+    <button id="scrollToTopBtn" title="Go to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+    
+    <button id="chatbotBtn" title="AI Career Chatbot">
+        <i class="fas fa-robot"></i>
+    </button>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="js/app.js" type="module"></script>
+</body>
+</html>
