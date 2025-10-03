@@ -337,15 +337,92 @@
                             </div>
 
                             <div id="skillsSection" class="content-section d-none">
-                                <h3 class="mb-4 fw-bold">Skill Gaps</h3>
-                                <p class="text-muted">This section will analyze your current skills and compare them to your target career, providing a learning roadmap.</p>
-                                <div class="alert alert-info">Feature coming soon.</div>
+                                <h3 class="mb-4 fw-bold">Skill Gaps & Learning Roadmap</h3>
+                                <p class="text-muted">Analyze your current skills against your recommended career path and get a personalized plan to bridge the gaps.</p>
+                                
+                                <div class="card p-4 mb-4">
+                                    <h5 class="fw-bold mb-3">Target Career: <span class="text-primary" id="targetCareerName">Software Engineer</span></h5>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h6>Core Skill Readiness</h6>
+                                            <div class="progress mb-2 progress-height-20" role="progressbar" aria-label="Skill Readiness" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
+                                                <div class="progress-bar bg-primary" id="readinessProgress" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">75% Ready</div>
+                                            </div>
+                                            <p class="small text-muted mt-2">Based on your quiz and profile data.</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6>Required Hard Skills</h6>
+                                            <ul class="list-group list-group-flush" id="requiredSkillsList">
+                                                <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0 py-1">Python/JS <span class="badge bg-success">Mastered</span></li>
+                                                <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0 py-1">Data Structures <span class="badge bg-warning">In Progress</span></li>
+                                                <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0 py-1">Cloud Computing <span class="badge bg-danger">Missing</span></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card p-4">
+                                    <h5 class="fw-bold mb-3">Personalized Learning Roadmap</h5>
+                                    <p class="text-muted">The AI recommends the following steps to acquire the missing skills:</p>
+                                    <ol class="list-group list-group-numbered" id="learningRoadmap">
+                                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                                            <div class="ms-2 me-auto">
+                                                <div class="fw-bold">Step 1: Master Cloud Basics (AWS/Azure)</div>
+                                                Complete an introductory certification course on Coursera.
+                                            </div>
+                                            <span class="badge bg-secondary rounded-pill">30 days</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                                            <div class="ms-2 me-auto">
+                                                <div class="fw-bold">Step 2: Build a Portfolio Project</div>
+                                                Create a serverless application using AWS Lambda and Python.
+                                            </div>
+                                            <span class="badge bg-secondary rounded-pill">60 days</span>
+                                        </li>
+                                    </ol>
+                                </div>
                             </div>
                             
                             <div id="resumeSection" class="content-section d-none">
-                                <h3 class="mb-4 fw-bold">My Resume</h3>
-                                <p class="text-muted">This section will allow you to upload your resume for AI-powered feedback and optimization.</p>
-                                <div class="alert alert-info">Feature coming soon.</div>
+                                <h3 class="mb-4 fw-bold">AI Resume Review</h3>
+                                <p class="text-muted">Upload your current resume below for instant AI feedback on formatting, keywords, and job match score.</p>
+                                
+                                <div class="card p-4 mb-4">
+                                    <h5 class="fw-bold mb-3">Upload Your Resume</h5>
+                                    <form id="resumeUploadForm">
+                                        <div class="mb-3">
+                                            <label for="resumeFile" class="form-label">Select File (.pdf, .docx only)</label>
+                                            <input class="form-control" type="file" id="resumeFile" accept=".pdf,.docx" required>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary fw-bold" id="analyzeResumeBtn">Analyze Resume</button>
+                                    </form>
+                                </div>
+
+                                <div id="resumeFeedbackArea" class="card p-4 d-none">
+                                    <h5 class="fw-bold mb-3">AI Analysis Results</h5>
+                                    <div class="row">
+                                        <div class="col-md-4 text-center">
+                                            <div class="display-4 fw-bold text-primary" id="matchScore">--</div>
+                                            <p class="text-muted">Job Match Score</p>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <h6>Key Feedback</h6>
+                                            <ul class="list-group list-group-flush" id="feedbackList">
+                                                <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0 py-1">
+                                                    Keywords <span class="badge bg-success">Excellent</span>
+                                                </li>
+                                                <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0 py-1">
+                                                    Length/Readability <span class="badge bg-warning">Needs work</span>
+                                                </li>
+                                                <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0 py-1">
+                                                    Action Verbs <span class="badge bg-success">Good</span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <hr/>
+                                    <p class="mt-2">**Next Step:** Use the <a href="#" data-page-section="resumeBuilderSection" class="text-primary fw-bold">AI Resume Builder</a> to automatically apply these recommendations.</p>
+                                </div>
                             </div>
                             
                             <div id="resumeBuilderSection" class="content-section d-none">

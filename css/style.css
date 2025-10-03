@@ -334,3 +334,8 @@ body.dark-theme #unifiedFooter .text-white-50, body.dark-theme #unifiedFooter .d
         opacity: 0.6;
     }
 }
+
+/* FIX for inline CSS warning - Progress bar height */
+.progress-height-20 {
+    height: 20px !important;
+}

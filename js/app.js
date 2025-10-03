@@ -184,6 +184,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
+    // Set the initial style for the progress bar (removes need for inline style)
+    const progressBar = document.getElementById('readinessProgress');
+    if (progressBar) {
+        // Use the initial value from the HTML attribute for the style
+        const value = progressBar.getAttribute('aria-valuenow');
+        progressBar.style.width = value + '%';
+    }
+    
     // Initial page and navbar setup
     updateNavbar();
     if (userState.isLoggedIn) {
@@ -357,6 +365,36 @@ document.getElementById('careerQuizForm').addEventListener('submit', async funct
         showContent('recommendationsSection');
     }, 2000); // 2-second delay to simulate loading
 });
+
+// Function to handle the simulated resume upload and display feedback
+document.getElementById('resumeUploadForm')?.addEventListener('submit', function(event) {
+    event.preventDefault();
+    const resumeFile = document.getElementById('resumeFile').files[0];
+    const feedbackArea = document.getElementById('resumeFeedbackArea');
+    const analyzeBtn = document.getElementById('analyzeResumeBtn');
+    
+    if (resumeFile) {
+        // --- START: Simulation of Loading State (for future API call) ---
+        analyzeBtn.textContent = 'Analyzing...';
+        analyzeBtn.disabled = true;
+
+        setTimeout(() => {
+            // --- Mock AI results (to be replaced by your backend API response) ---
+            const mockScore = Math.floor(Math.random() * (95 - 65 + 1)) + 65;
+            document.getElementById('matchScore').textContent = `${mockScore}%`;
+
+            // Display results
+            feedbackArea.classList.remove('d-none');
+            analyzeBtn.textContent = 'Analyze Resume';
+            analyzeBtn.disabled = false;
+            
+            // In a real app, you would process the file here and handle the API response.
+            console.log(`Resume uploaded: ${resumeFile.name}. Analysis complete.`);
+        }, 2500); // 2.5-second delay to simulate AI processing
+         // --- END: Simulation ---
+    }
+});
+
 
 // Event listener for the new profile form
 document.getElementById('profileSection').querySelector('form').addEventListener('submit', function(event) {
