@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aiml version="1.0.1" encoding="UTF-8">
+  <category>
+    <pattern>HELLO</pattern>
+    <template>Hello! Ask me anything about careers, skills, or jobs.</template>
+  </category>
+
+  <category>
+    <pattern>HI</pattern>
+    <template>Hello! How can I assist your career journey today?</template>
+  </category>
+
+  <category>
+    <pattern>WHAT SKILLS FOR *</pattern>
+    <template>
+      Key skills for <star/> include problem solving, fundamentals, and building projects. Consider an online roadmap and practice-based learning.
+    </template>
+  </category>
+
+  <category>
+    <pattern>WHAT IS THE SALARY OF *</pattern>
+    <template>
+      Salaries for <star/> vary by location and experience. Review current market surveys and adjust for your region.
+    </template>
+  </category>
+
+  <category>
+    <pattern>HOW TO BECOME *</pattern>
+    <template>
+      To become a <star/>, start with fundamentals, complete an introductory course, and build a portfolio project. Seek mentorship and iterate.
+    </template>
+  </category>
+
+  <category>
+    <pattern>RECOMMEND COURSES FOR *</pattern>
+    <template>
+      Consider beginner to intermediate courses for <star/> on reputable platforms, then build a capstone project to consolidate learning.
+    </template>
+  </category>
+
+  <category>
+    <pattern>* ROADMAP *</pattern>
+    <template>
+      A typical roadmap: fundamentals -> core tools -> projects -> internships -> applications. Tailor steps to your background and pace.
+    </template>
+  </category>
+
+  <category>
+    <pattern>* RESUME *</pattern>
+    <template>
+      Use action verbs, quantify impact, highlight relevant skills, and keep it concise (1 page if junior).
+    </template>
+  </category>
+
+  <category>
+    <pattern>* INTERVIEW *</pattern>
+    <template>
+      Practice common questions, build STAR stories, and rehearse aloud. Do mock interviews and review feedback.
+    </template>
+  </category>
+
+  <category>
+    <pattern>DEFAULT</pattern>
+    <template>
+      I may not know that yet. Try asking about skills, salary, roadmap, resume, or interviews.
+    </template>
+  </category>
+</aiml>
+

@@ -1,29 +1,29 @@
 :root {
-    /* Base variables, will be overridden by light or dark themes */
-    --primary-color: #4a4aff;
-    --secondary-color: #f0f4f8;
-    --accent-color: #6c63ff;
-    --dark-color: #1a202c;
-    --light-color: #ffffff;
+    /* Modern brand palette: indigo + mint */
+    --primary-color: #6E59F7; /* Indigo */
+    --secondary-color: #F5F7FB; /* Subtle light background */
+    --accent-color: #1AD1A5; /* Mint */
+    --dark-color: #0A0D14; /* Deep text for light mode */
+    --light-color: #FFFFFF;
     --font-family: 'Poppins', sans-serif;
 }
 
 /* Day Theme (Original Professional Colors) */
 body.light-theme {
-    --primary-color: #4a4aff;
-    --secondary-color: #f0f4f8;
-    --accent-color: #6c63ff;
-    --dark-color: #1a202c;
-    --light-color: #ffffff;
+    --primary-color: #6E59F7; /* Indigo */
+    --secondary-color: #F5F7FB; /* Soft canvas */
+    --accent-color: #1AD1A5; /* Mint */
+    --dark-color: #0A0D14; /* Text */
+    --light-color: #FFFFFF;
 }
 
 /* Night Theme (Dark Colors) */
 body.dark-theme {
-    --primary-color: #556ee6;    /* Electric Blue */
-    --secondary-color: #212529;  /* Very dark charcoal background */
-    --accent-color: #1a5276;     /* Muted secondary blue */
-    --dark-color: #ffffff;       /* Light text color */
-    --light-color: #adb5bd;       /* Light gray for muted text */
+    --primary-color: #8E7CFA;    /* Indigo tint for dark */
+    --secondary-color: #0A0D14;  /* Near-black canvas */
+    --accent-color: #20E3B2;     /* Neo-mint */
+    --dark-color: #E6EAF2;       /* Light text */
+    --light-color: #9AA4B2;      /* Muted text */
 }
 
 body {
@@ -80,8 +80,8 @@ body.dark-theme .navbar .nav-link.active {
 }
 
 .btn-primary:hover {
-    background-color: #3b3bbd;
-    border-color: #3b3bbd;
+    background-color: color-mix(in srgb, var(--primary-color) 85%, #000 15%);
+    border-color: color-mix(in srgb, var(--primary-color) 85%, #000 15%);
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
@@ -439,4 +439,108 @@ body.dark-theme .chat-bubble-ai {
   50%, 100% {
     background-color: rgba(var(--primary-color), 0.2);
   }
+}
+
+/* ============================ */
+/* Unique Theme Enhancements    */
+/* ============================ */
+
+/* Animated gradient for hero */
+.hero-section {
+    position: relative;
+    overflow: hidden;
+}
+.hero-section::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(1200px 600px at 0% 0%, rgba(255,255,255,0.10), rgba(255,255,255,0) 40%),
+                radial-gradient(1000px 500px at 100% 20%, rgba(255,255,255,0.06), rgba(255,255,255,0) 45%),
+                radial-gradient(800px 400px at 50% 100%, rgba(255,255,255,0.08), rgba(255,255,255,0) 40%);
+    animation: floatGlow 12s ease-in-out infinite alternate;
+    pointer-events: none;
+}
+@keyframes floatGlow {
+    0% { transform: translate3d(0,0,0) scale(1); }
+    100% { transform: translate3d(0,-12px,0) scale(1.02); }
+}
+
+/* Glassmorphism on navbar and cards */
+.navbar {
+    backdrop-filter: saturate(160%) blur(8px);
+    -webkit-backdrop-filter: saturate(160%) blur(8px);
+    background-color: color-mix(in srgb, var(--light-color) 70%, transparent);
+}
+body.dark-theme .navbar {
+    background-color: color-mix(in srgb, var(--secondary-color) 70%, transparent);
+}
+
+.card {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--light-color) 86%, transparent), color-mix(in srgb, var(--light-color) 92%, transparent));
+    backdrop-filter: blur(10px) saturate(120%);
+    -webkit-backdrop-filter: blur(10px) saturate(120%);
+    border: 1px solid rgba(255,255,255,0.25);
+}
+body.dark-theme .card {
+    background: linear-gradient(180deg, rgba(44,49,58,0.85), rgba(44,49,58,0.92));
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Buttons: subtle 3D hover */
+.btn-primary {
+    box-shadow: 0 8px 20px rgba(76, 76, 255, 0.15);
+    transform: translateY(0);
+}
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 28px rgba(76, 76, 255, 0.22);
+}
+.btn.btn-outline-primary {
+    transition: all 0.25s ease;
+}
+.btn.btn-outline-primary:hover {
+    transform: translateX(2px);
+}
+
+/* Sidebar link active styling refinement */
+#dashboard-sidebar .btn {
+    border-radius: 12px;
+}
+#dashboard-sidebar .btn.active,
+#dashboard-sidebar .btn.active-sidebar {
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+}
+
+/* Recommendation cards: lift on hover */
+#recommendationsList .card {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+#recommendationsList .card:hover {
+    transform: translateY(-6px) scale(1.01);
+    box-shadow: 0 16px 30px rgba(0,0,0,0.12);
+}
+
+/* Chat bubbles refinement */
+.chat-bubble-user {
+    background: linear-gradient(135deg, var(--primary-color), color-mix(in srgb, var(--primary-color) 80%, #ffffff 20%));
+}
+.chat-bubble-ai {
+    backdrop-filter: blur(6px);
+}
+
+/* Footer links hover */
+#unifiedFooter a {
+    transition: color 0.2s ease, opacity 0.2s ease;
+}
+#unifiedFooter a:hover {
+    opacity: 0.85;
+}
+
+/* Smooth section appearance */
+.content-section {
+    animation: sectionFade 300ms ease-out;
+}
+@keyframes sectionFade {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
 }

@@ -33,7 +33,8 @@ const Store = {
 // --- ROUTER & VIEW RENDERING ---
 
 function router() {
-    let hash = window.location.hash.slice(1);
+    let fullHash = window.location.hash.slice(1);
+    let [hash, queryString] = fullHash.split('?');
     
     // Added 'termsPage' to the list of main pages
     const pages = ['landingPage', 'loginPage', 'registerPage', 'helpPage', 'dashboardPage', 'forgotPasswordPage', 'termsPage'];
@@ -53,6 +54,11 @@ function router() {
     } 
 
     if (pages.includes(hash)) {
+        // If navigating to login while already logged in, force dashboard
+        if (hash === 'loginPage' && Store.state.isLoggedIn) {
+            Store.update({ currentView: 'dashboardPage' });
+            return;
+        }
         Store.update({ currentView: hash });
         return;
     } 
@@ -62,6 +68,15 @@ function router() {
         window.location.hash = Store.state.isLoggedIn ? '#dashboardPage' : '#landingPage';
         return;
     }
+}
+
+// Helper to get query params from current hash
+function getHashQueryParam(key) {
+    const fullHash = window.location.hash.slice(1);
+    const parts = fullHash.split('?');
+    if (parts.length < 2) return null;
+    const params = new URLSearchParams(parts[1]);
+    return params.get(key);
 }
 
 // --- RENDERING FUNCTIONS ---
@@ -211,6 +226,9 @@ function updateNavbar(state) {
     if (state.isLoggedIn) {
         navLinksContainer.innerHTML = `
             <li class="nav-item">
+                <a class="nav-link" href="#landingPage">Home</a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" href="#dashboardPage">Dashboard</a>
             </li>
             <li class="nav-item">
@@ -232,6 +250,11 @@ function updateNavbar(state) {
                     <li><button class="dropdown-item" id="navLogout">Logout</button></li>
                 </ul>
             </li>
+            <li class="nav-item d-flex align-items-center ms-3">
+                <button id="themeToggleBtnLogged" class="btn btn-sm btn-outline-secondary rounded-pill" aria-label="Toggle Day/Night Theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </li>
             <li class="nav-item d-flex align-items-center ms-3 d-lg-none">
                 <button id="themeToggleBtnPublic" class="btn btn-sm btn-outline-secondary rounded-pill" aria-label="Toggle Day/Night Theme">
                     <i class="fas fa-moon"></i>
@@ -249,6 +272,7 @@ function updateNavbar(state) {
                 resumeFeedback: null,
                 chatHistory: []
             });
+            // After logout, always go to Home (landingPage)
             window.location.hash = '#landingPage';
         });
         
@@ -274,7 +298,7 @@ function updateNavbar(state) {
         `;
     }
 
-    document.querySelectorAll('#themeToggleBtnPublic, #themeToggleBtnDashboard').forEach(btn => {
+    document.querySelectorAll('#themeToggleBtnPublic, #themeToggleBtnDashboard, #themeToggleBtnLogged').forEach(btn => {
         btn.addEventListener('click', () => {
             const currentTheme = localStorage.getItem('theme') || 'light';
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
@@ -289,7 +313,8 @@ function setTheme(theme) {
     const body = document.body;
     const publicBtnIcon = document.querySelector('#themeToggleBtnPublic i');
     const dashboardBtnIcon = document.querySelector('#themeToggleBtnDashboard i');
-    const icons = [publicBtnIcon, dashboardBtnIcon].filter(i => i); 
+    const loggedBtnIcon = document.querySelector('#themeToggleBtnLogged i');
+    const icons = [publicBtnIcon, dashboardBtnIcon, loggedBtnIcon].filter(i => i); 
     
     if (theme === 'dark') {
         body.classList.add('dark-theme');
@@ -369,10 +394,10 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('hashchange', router);
     router(); 
 
-    // Handle logo click
+    // Handle logo click -> always go Home (landingPage), keep login state
     document.getElementById('logoLink').addEventListener('click', (event) => {
         event.preventDefault();
-        window.location.hash = Store.state.isLoggedIn ? '#dashboardPage' : '#landingPage';
+        window.location.hash = '#landingPage';
     });
 
     // Help form logic
@@ -437,7 +462,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- FORM SUBMISSION API HANDLERS ---
 
-async function handleAuthentication(url, name, email, password) {
+async function handleAuthentication(url, name, email, password, redirect) {
     try {
         const payload = { name, email, password };
         const response = await axios.post(`${API_URL}/auth/${url}`, payload);
@@ -451,8 +476,15 @@ async function handleAuthentication(url, name, email, password) {
                 userId: user.id,
             });
             // Fetch all profile data now that we have the userId
-            await fetchUserProfile(user.id); 
-            window.location.hash = '#dashboardPage';
+            await fetchUserProfile(user.id);
+            // Conditional redirect logic
+            if (redirect === 'dashboard' || Store.state.currentView === 'dashboardPage') {
+                window.location.hash = '#dashboardPage';
+            } else if (redirect === 'home') {
+                window.location.hash = '#landingPage';
+            } else {
+                window.location.hash = '#landingPage';
+            }
         } else {
             alert(response.data.message || 'Authentication failed.');
         }
@@ -466,7 +498,8 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     event.preventDefault();
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
-    handleAuthentication('login', null, email, password);
+    const redirect = getHashQueryParam('redirect');
+    await handleAuthentication('login', null, email, password, redirect);
 });
 
 document.getElementById('registerForm').addEventListener('submit', async function(event) {
@@ -474,7 +507,8 @@ document.getElementById('registerForm').addEventListener('submit', async functio
     const name = document.getElementById('regName').value;
     const email = document.getElementById('regEmail').value;
     const password = document.getElementById('regPassword').value;
-    handleAuthentication('register', name, email, password);
+    const redirect = getHashQueryParam('redirect');
+    await handleAuthentication('register', name, email, password, redirect);
 });
 
 document.getElementById('careerQuizForm').addEventListener('submit', async function(event) {
