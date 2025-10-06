@@ -57,6 +57,21 @@ body.dark-theme .navbar .nav-link, body.dark-theme .navbar .btn, body.dark-theme
     color: var(--dark-color) !important;
 }
 
+/* --- ACTIVE NAVBAR LINK STYLING (Moved from inline CSS) --- */
+.navbar .nav-link.active {
+    border-bottom: 3px solid var(--primary-color, #4a4aff); /* Primary color underline */
+    color: var(--primary-color, #4a4aff) !important;
+    font-weight: 600;
+}
+
+/* Ensure dark theme links are still visible when active */
+body.dark-theme .navbar .nav-link.active {
+    border-color: var(--primary-color, #556ee6);
+    color: var(--dark-color, #ffffff) !important; 
+}
+/* -------------------------------------------------------- */
+
+
 .btn-primary {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
@@ -279,31 +294,8 @@ body.dark-theme #unifiedFooter .text-white-50, body.dark-theme #unifiedFooter .d
     background-color: var(--accent-color);
 }
 
-#chatbotBtn {
-    position: fixed;
-    bottom: 20px;
-    right: 90px;
-    background-color: var(--primary-color);
-    color: var(--light-color);
-    border: none;
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    font-size: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 1000;
-    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
+/* Removed floating chatbot button styles as the button was removed from HTML */
 
-#chatbotBtn:hover {
-    background-color: var(--accent-color);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
-}
 
 #recommendationsList .loading-state {
     display: flex;
@@ -338,4 +330,113 @@ body.dark-theme #unifiedFooter .text-white-50, body.dark-theme #unifiedFooter .d
 /* FIX for inline CSS warning - Progress bar height */
 .progress-height-20 {
     height: 20px !important;
+}
+/* Chatbot specific styles */
+.chatbot-container {
+    height: 60vh; 
+    max-height: 500px;
+    min-height: 400px;
+    background-color: var(--light-color);
+    border-color: var(--secondary-color);
+}
+body.dark-theme .chatbot-container {
+    background-color: #343a40;
+    border-color: #495057;
+    color: var(--dark-color);
+}
+#chatMessages {
+    background-color: var(--secondary-color) !important;
+    border-color: #ccc !important;
+}
+body.dark-theme #chatMessages {
+    background-color: #212529 !important;
+    border-color: #495057 !important;
+}
+.chat-message-user {
+    text-align: right;
+    margin-bottom: 8px;
+}
+.chat-message-ai {
+    text-align: left;
+    margin-bottom: 8px;
+}
+.chat-bubble {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 18px;
+    max-width: 80%;
+    word-wrap: break-word;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+.chat-bubble-user {
+    background-color: var(--primary-color);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+.chat-bubble-ai {
+    background-color: var(--secondary-color);
+    color: var(--dark-color);
+    border: 1px solid #ddd;
+    border-bottom-left-radius: 4px;
+}
+body.dark-theme .chat-bubble-ai {
+    background-color: #495057;
+    color: var(--dark-color);
+    border: 1px solid #6c757d;
+}
+.chat-loading {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 8px 12px;
+    color: var(--primary-color);
+}
+.dot-flashing {
+  position: relative;
+  width: 5px;
+  height: 5px;
+  border-radius: 5px;
+  background-color: var(--primary-color);
+  color: var(--primary-color);
+  animation: dotFlashing 1s infinite alternate;
+  animation-delay: 0s;
+  margin-left: 10px;
+}
+
+.dot-flashing::before, .dot-flashing::after {
+  content: "";
+  display: inline-block;
+  position: absolute;
+  top: 0;
+}
+
+.dot-flashing::before {
+  left: -8px;
+  width: 5px;
+  height: 5px;
+  border-radius: 5px;
+  background-color: var(--primary-color);
+  color: var(--primary-color);
+  animation: dotFlashing 1s infinite alternate;
+  animation-delay: 0.3s;
+}
+
+.dot-flashing::after {
+  left: 8px;
+  width: 5px;
+  height: 5px;
+  border-radius: 5px;
+  background-color: var(--primary-color);
+  color: var(--primary-color);
+  animation: dotFlashing 1s infinite alternate;
+  animation-delay: 0.6s;
+}
+
+@keyframes dotFlashing {
+  0% {
+    background-color: var(--primary-color);
+  }
+  50%, 100% {
+    background-color: rgba(var(--primary-color), 0.2);
+  }
 }

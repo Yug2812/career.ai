@@ -1,0 +1,23 @@
+{
+  "name": "ai-career-guidance-backend",
+  "version": "1.0.0",
+  "description": "Backend for AI-Powered Career Guidance Web Application using Node.js and Express.js.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "users": {
+    "test@example.com": {
+      "id": "ygtilt4zgxyarlmooyi0r",
+      "name": "Test User",
+      "email": "test@example.com",
+      "password": "test",
+      "quizResults": null,
+      "profileDescription": "I am a new user testing the system.",
+      "resumeFeedback": null
+    }
+  }
+}
