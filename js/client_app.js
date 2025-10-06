@@ -58,6 +58,7 @@ function router() {
     } 
     
     if (hash === '' || !pages.includes(hash)) {
+        // This ensures the page is correctly redirected to #landingPage on initial load
         window.location.hash = Store.state.isLoggedIn ? '#dashboardPage' : '#landingPage';
         return;
     }
