@@ -30,6 +30,9 @@ const Store = {
     }
 };
 
+// New Initial AI Message (to provide default starter text if history is empty)
+const INITIAL_BOT_MESSAGE = { role: "bot", text: "Welcome! I'm here to help you navigate your career choices. Tell me what you're currently interested in, or what doubts you have about your future path." };
+
 // --- ROUTER & VIEW RENDERING ---
 
 function router() {
@@ -134,19 +137,27 @@ function renderChat(state) {
     
     chatMessagesEl.innerHTML = '';
     
-    if (state.chatHistory.length === 0) {
-        chatMessagesEl.innerHTML = '<div class="text-center text-muted small p-2">Ask me anything about careers, skills, or job market trends!</div>';
-        return;
-    }
-    
-    state.chatHistory.forEach(msg => {
-        const msgClass = msg.role === 'user' ? 'text-end' : 'text-start';
-        const bubbleClass = msg.role === 'user' ? 'bg-primary text-white' : 'bg-light text-dark';
+    const displayHistory = state.chatHistory.length === 0 ? 
+        [INITIAL_BOT_MESSAGE] : 
+        state.chatHistory;
+
+    displayHistory.forEach(msg => {
+        const isUser = msg.role === 'user';
+        const isLoading = msg.role === 'loading';
+        const msgClass = isUser ? 'text-end' : 'text-start';
+        const bubbleClass = isUser ? 'bg-primary text-white' : 'bg-light text-dark';
+        
+        let messageText;
+        if (isLoading) {
+            messageText = '<div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div>';
+        } else {
+            messageText = msg.text;
+        }
         
         const messageHtml = `
             <div class="${msgClass} mb-2">
                 <span class="d-inline-block p-2 rounded-lg shadow-sm ${bubbleClass}" style="max-width: 80%;">
-                    ${msg.text}
+                    ${messageText}
                 </span>
             </div>
         `;
@@ -671,7 +682,7 @@ async function handleResumeBuild(event) {
     }
 }
 
-// --- NEW FUNCTION: AI CHATBOT LOGIC ---
+// --- MODIFIED FUNCTION: AI CHATBOT LOGIC to support conversation history ---
 async function handleChatbotSubmit(event) {
     event.preventDefault();
     const userId = Store.state.userId;
@@ -679,33 +690,50 @@ async function handleChatbotSubmit(event) {
     const query = chatInput.value.trim();
 
     if (!userId || !query) return;
+
+    const currentHistory = Store.state.chatHistory; // Snapshot of current history
     
-    // 1. Add user message to state and clear input
-    const newChatHistory = [...Store.state.chatHistory, { role: 'user', text: query }];
-    Store.update({ chatHistory: newChatHistory });
+    // 1. Add user message AND a temporary loading message to state immediately
+    const userMessage = { role: 'user', text: query };
+    const loadingMessage = { role: 'loading', text: '' }; // Dummy role for loading indicator
+    const startingHistory = [...currentHistory, userMessage, loadingMessage];
+    
+    Store.update({ chatHistory: startingHistory });
     chatInput.value = '';
     
     const sendBtn = document.getElementById('chatSendBtn');
     sendBtn.disabled = true;
 
-    // 2. Call backend API
+    // 2. Call backend API, sending the full history for context
     try {
-        const response = await axios.post(`${API_URL}/chatbot/query`, { userId, query });
+        const response = await axios.post(`${API_URL}/chatbot/query`, { 
+            userId, 
+            query,
+            history: [...currentHistory, userMessage] // Send the full history including the new user message.
+        });
         
         if (response.data.success) {
             const botMessage = response.data.response;
-            const updatedChatHistory = [...Store.state.chatHistory, { role: 'bot', text: botMessage }];
             
-            // 3. Update state with bot's response
-            Store.update({ chatHistory: updatedChatHistory });
+            // 3. Update state by removing loading message and adding bot's response
+            const finalHistory = startingHistory.slice(0, -1); // Remove the loading message
+            finalHistory.push({ role: 'bot', text: botMessage }); // Add the actual bot response
+            
+            Store.update({ chatHistory: finalHistory });
         } else {
             const errorMsg = `[Error] ${response.data.message || 'Could not connect to the chatbot service.'}`;
-            Store.update({ chatHistory: [...Store.state.chatHistory, { role: 'bot', text: errorMsg }] });
+            const errorHistory = startingHistory.slice(0, -1); // Remove loading message
+            errorHistory.push({ role: 'bot', text: errorMsg }); // Add error message as a bot response
+            Store.update({ chatHistory: errorHistory });
+            alert('Chatbot Error: ' + errorMsg);
         }
     } catch (error) {
         console.error('Chatbot API Error:', error);
         const errorMsg = `[Error] Failed to get response from server. (API call failed)`;
-        Store.update({ chatHistory: [...Store.state.chatHistory, { role: 'bot', text: errorMsg }] });
+        const errorHistory = startingHistory.slice(0, -1); // Remove loading message
+        errorHistory.push({ role: 'bot', text: errorMsg }); // Add general error message
+        Store.update({ chatHistory: errorHistory });
+        alert('Chatbot Critical Error: ' + errorMsg);
     } finally {
         sendBtn.disabled = false;
     }

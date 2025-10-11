@@ -29,7 +29,8 @@ aiml_kernel = None
 if AIML_AVAILABLE:
     try:
         aiml_kernel = aiml.Kernel()
-        aiml_kernel.learn("aiml/career.aiml")
+        # Ensure the path is correct relative to the script
+        aiml_kernel.learn(os.path.join(os.path.dirname(__file__), "aiml/career.aiml"))
         # Set a default predicate for safe fallbacks
         aiml_kernel.setPredicate("name", "CareerGuide")
         print("AIML kernel loaded.")
@@ -70,9 +71,11 @@ def quiz_submit():
     career = None
     if ml_model is not None and SKLEARN_AVAILABLE:
         try:
-            row = [[answers.get(c)] for c in ml_feature_columns]
-            row = [answers.get(c, "") for c in ml_feature_columns]
-            career = ml_model.predict([row])[0]
+            # We must convert the input dictionary into the list of values the model expects
+            features_list = [answers.get(c, "") for c in ml_feature_columns]
+            
+            # Predict expects a list of samples, so we wrap the single sample in a list
+            career = ml_model.predict([features_list])[0]
         except Exception as e:
             print(f"ML prediction failed: {e}")
             career = None
@@ -80,6 +83,7 @@ def quiz_submit():
     # Fallback simple rule-based
     if not career:
         career = 'Full Stack Developer'
+        # Check against string values based on input names in index.html
         if answers.get('subject') == 'math':
             career = 'Data Scientist'
         elif answers.get('problem') == 'creative':
@@ -121,11 +125,12 @@ def ml_train():
 
     # Build pipeline: OneHotEncoder for categorical features + RandomForest
     try:
+        # Create a preprocessor that applies OneHotEncoder to all feature columns
         encoder = OneHotEncoder(handle_unknown='ignore')
-        # We treat all columns as categorical
         preprocessor = ColumnTransformer([
             ('cat', encoder, list(range(len(ml_feature_columns))))
         ])
+        
         clf = RandomForestClassifier(n_estimators=200, random_state=42)
         pipeline = Pipeline([
             ('prep', preprocessor),
@@ -195,8 +200,8 @@ def chatbot_query():
                 # AIML works best with uppercased patterns
                 response = aiml_kernel.respond(query.strip())
         except Exception as e:
-            print(f"AIML respond failed: {e}
-")
+            # CORRECTED: Ensure the f-string is correctly closed on the same line
+            print(f"AIML respond failed: {e}")
             response = None
 
     # Fallback rule-based response
@@ -211,6 +216,7 @@ def chatbot_query():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    # Changed default port from 5000 to 5001 to avoid "Address already in use" issues.
+    app.run(host='0.0.0.0', port=5001, debug=True)
 
 

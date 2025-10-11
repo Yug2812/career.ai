@@ -24,6 +24,16 @@ const MONGO_URI = process.env.MONGO_URI || null;
 const API_URL_BASE = `/api`;
 // External AI service (Flask) base URL; e.g., http://localhost:5000/api
 const AI_SERVICE_BASE = process.env.AI_SERVICE_BASE || null;
+// New Gemini Integration:
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || null;
+const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent";
+
+/**
+ * System Instruction defining the AI's role as a Career Guidance Counselor.
+ * This ensures the model provides relevant and professional advice. (From user's provided snippet)
+ */
+const CAREER_SYSTEM_INSTRUCTION = "You are a professional, empathetic, and knowledgeable AI Career Guidance Counselor. Your goal is to help the user explore their career doubts, identify suitable paths, and provide guidance on skills, education, and industry trends. Keep responses focused, encouraging, and based on industry realities. Use a supportive and advisory tone.";
+
 
 // Middleware Setup
 app.use(cors()); 
@@ -332,14 +342,62 @@ app.post(`${API_URL_BASE}/resume/analyze`, async (req, res) => {
 
 app.post(`${API_URL_BASE}/chatbot/query`, async (req, res) => {
     try {
-        const { userId, query } = req.body;
+        // Updated to receive full history from client
+        const { userId, query, history } = req.body; 
         const user = await findUserById(userId);
         if (!user) {
             return res.status(404).json({ success: false, message: 'User not found.' });
         }
 
+        // --- GEMINI AI LOGIC (High Priority if configured) ---
+        if (GEMINI_API_KEY) {
+            try {
+                // 1. Prepare conversation history for Gemini API
+                // Client history format: { role: 'user'|'bot', text: '...' }
+                // Gemini API format: { role: 'user'|'model', parts: [{ text: '...' }] }
+                const contents = history.map(msg => ({
+                    role: msg.role === 'bot' ? 'model' : 'user',
+                    parts: [{ text: msg.text }]
+                }));
+
+                const payload = {
+                    contents: contents,
+                    systemInstruction: {
+                        parts: [{ text: CAREER_SYSTEM_INSTRUCTION }]
+                    }
+                };
+
+                const { data } = await axios.post(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, payload, { timeout: 15000 });
+                
+                // Parse API response
+                const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (responseText) {
+                    return res.json({ success: true, response: responseText });
+                } else if (data.error) {
+                    console.error("Gemini API Error:", data.error.message);
+                    throw new Error(`API Error: ${data.error.message}`);
+                } else {
+                    console.warn("Unexpected Gemini API response structure:", data);
+                    throw new Error("Received unexpected response from AI service.");
+                }
+
+            } catch (err) {
+                if (err.message.includes('API Error')) {
+                    console.error('Gemini API Integration failed:', err.message);
+                    // Fall through to other services/mock if Gemini fails
+                } else {
+                    console.warn('Gemini service failed or not configured, falling through:', err.message);
+                }
+            }
+        }
+        // --- END GEMINI AI LOGIC ---
+        
+        // --- ORIGINAL AI SERVICE (Flask) CHECK ---
         if (AI_SERVICE_BASE) {
             try {
+                // Note: The original Flask call only sent the current query, not history. 
+                // Maintaining the original format for compatibility with external service.
                 const { data } = await axios.post(`${AI_SERVICE_BASE}/chatbot/query`, { userId, query }, { timeout: 10000 });
                 if (data && data.success && data.response) {
                     return res.json({ success: true, response: data.response });
@@ -349,11 +407,15 @@ app.post(`${API_URL_BASE}/chatbot/query`, async (req, res) => {
             }
         }
 
-        // --- MOCK AI LOGIC ---
+        // --- MOCK AI LOGIC (Fallback) ---
         let botResponse = `I see you asked about "${query}". As an AI Career Guide, I suggest researching online courses in ${user.quizResults?.targetCareer || 'Cloud Computing'} to stay competitive!`;
         if (query.toLowerCase().includes('salary')) {
             botResponse = "The salary for a Data Scientist can range from $80,000 to over $150,000 depending on location and experience. It's a growing field!";
+        } else if (!history || history.length === 0 || history.length === 1) {
+            // Provide a better introductory message if it's the first message or first real query.
+             botResponse = `Hello ${user.name || 'there'}! I'm here to offer career guidance. I see you asked about "${query}". My initial suggestion is to explore the 'Skills Gap' section.`;
         }
+
         await new Promise(resolve => setTimeout(resolve, 1000));
         // --- END MOCK AI LOGIC ---
         res.json({ success: true, response: botResponse });
