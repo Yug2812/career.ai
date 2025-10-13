@@ -3,4 +3,4 @@ flask-cors==4.0.1
 python-aiml==0.9.3
 scikit-learn==1.5.2
 joblib==1.4.2
-
+pandas

@@ -36,8 +36,8 @@ const CAREER_SYSTEM_INSTRUCTION = "You are a professional, empathetic, and knowl
 
 
 // Middleware Setup
-app.use(cors()); 
-app.use(express.json()); 
+app.use(cors());
+app.use(express.json());
 
 // --- DATABASE LAYER (MongoDB with Mock Fallback) ---
 
@@ -94,7 +94,7 @@ function loadDatabase() {
             "profileDescription": "I am a new user testing the system.",
             "resumeFeedback": null
         };
-        saveDatabase(); 
+        saveDatabase();
     }
 }
 
@@ -215,8 +215,8 @@ app.get(`${API_URL_BASE}/profile/data/:userId`, async (req, res) => {
         if (!user) {
             return res.status(404).json({ success: false, message: 'User not found.' });
         }
-        res.json({ 
-            success: true, 
+        res.json({
+            success: true,
             user: {
                 name: user.name,
                 email: user.email,
@@ -248,7 +248,7 @@ app.post(`${API_URL_BASE}/profile/update`, async (req, res) => {
 
 
 // ===============================================
-// 3. AI/ML MOCK ROUTES 
+// 3. AI/ML ROUTES 
 // ===============================================
 
 app.post(`${API_URL_BASE}/quiz/submit`, async (req, res) => {
@@ -268,32 +268,15 @@ app.post(`${API_URL_BASE}/quiz/submit`, async (req, res) => {
                     return res.json({ success: true, message: data.message || 'Quiz processed.', results: data.results });
                 }
             } catch (err) {
-                console.warn('AI service (quiz) failed, using mock:', err.message);
+                console.error('AI service (quiz) failed:', err.message);
+                // The AI service is critical now, so we return an error if it fails
+                return res.status(503).json({ success: false, message: 'The AI prediction service is currently unavailable. Please try again later.' });
             }
+        } else {
+            // If AI_SERVICE_BASE is not configured, we cannot proceed.
+            return res.status(500).json({ success: false, message: 'AI service is not configured on the server.' });
         }
 
-        // --- MOCK AI LOGIC ---
-        let career = 'Full Stack Developer';
-        if (answers.subject === 'math') {
-            career = 'Data Scientist';
-        } else if (answers.problem === 'creative') {
-            career = 'UX/UI Designer';
-        } else if (answers.motivation === 'impact') {
-            career = 'AI Ethics Consultant';
-        }
-
-        const mockResults = {
-            recommendations: [career, 'Cloud Engineer', 'Project Manager', 'Technical Writer'],
-            skillReadiness: Math.floor(Math.random() * (90 - 45 + 1)) + 45,
-            targetCareer: career,
-            rawAnswers: answers
-        };
-
-        await updateUserById(userId, { quizResults: mockResults });
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        // --- END MOCK AI LOGIC ---
-
-        res.json({ success: true, message: 'Quiz submitted and recommendations generated.', results: mockResults });
     } catch (err) {
         console.error('Quiz submit error:', err.message);
         res.status(500).json({ success: false, message: 'Server error submitting quiz.' });
@@ -343,7 +326,7 @@ app.post(`${API_URL_BASE}/resume/analyze`, async (req, res) => {
 app.post(`${API_URL_BASE}/chatbot/query`, async (req, res) => {
     try {
         // Updated to receive full history from client
-        const { userId, query, history } = req.body; 
+        const { userId, query, history } = req.body;
         const user = await findUserById(userId);
         if (!user) {
             return res.status(404).json({ success: false, message: 'User not found.' });
@@ -368,7 +351,7 @@ app.post(`${API_URL_BASE}/chatbot/query`, async (req, res) => {
                 };
 
                 const { data } = await axios.post(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, payload, { timeout: 15000 });
-                
+
                 // Parse API response
                 const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
@@ -392,7 +375,7 @@ app.post(`${API_URL_BASE}/chatbot/query`, async (req, res) => {
             }
         }
         // --- END GEMINI AI LOGIC ---
-        
+
         // --- ORIGINAL AI SERVICE (Flask) CHECK ---
         if (AI_SERVICE_BASE) {
             try {
@@ -413,7 +396,7 @@ app.post(`${API_URL_BASE}/chatbot/query`, async (req, res) => {
             botResponse = "The salary for a Data Scientist can range from $80,000 to over $150,000 depending on location and experience. It's a growing field!";
         } else if (!history || history.length === 0 || history.length === 1) {
             // Provide a better introductory message if it's the first message or first real query.
-             botResponse = `Hello ${user.name || 'there'}! I'm here to offer career guidance. I see you asked about "${query}". My initial suggestion is to explore the 'Skills Gap' section.`;
+            botResponse = `Hello ${user.name || 'there'}! I'm here to offer career guidance. I see you asked about "${query}". My initial suggestion is to explore the 'Skills Gap' section.`;
         }
 
         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -432,7 +415,7 @@ app.post(`${API_URL_BASE}/chatbot/query`, async (req, res) => {
 // Initialize database layer
 connectMongo().then(() => {
     if (!isMongoReady) {
-loadDatabase();
+        loadDatabase();
     }
 });
 
@@ -445,3 +428,5 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
     console.log(`🚀 Backend API Server running on http://localhost:${PORT}`);
 });
+
+

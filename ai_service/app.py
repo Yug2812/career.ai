@@ -1,62 +1,87 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import random
-try:
-    import aiml  # python-aiml
-    AIML_AVAILABLE = True
-except Exception:
-    AIML_AVAILABLE = False
+import pandas as pd
+import joblib
 import os
-from typing import List, Dict
-try:
-    import joblib
-    from sklearn.pipeline import Pipeline
-    from sklearn.preprocessing import OneHotEncoder
-    from sklearn.compose import ColumnTransformer
-    from sklearn.ensemble import RandomForestClassifier
-    import numpy as np
-    SKLEARN_AVAILABLE = True
-except Exception:
-    SKLEARN_AVAILABLE = False
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+import random
 
+try:
+    import aiml
+    AIML_AVAILABLE = True
+except ImportError:
+    AIML_AVAILABLE = False
+
+# Initialization
 app = Flask(__name__)
 CORS(app)
-
 API_PREFIX = '/api'
+MODEL_PATH = os.path.join(os.path.dirname(__file__), 'model.pkl')
+DATASET_PATH = os.path.join(os.path.dirname(__file__), 'career_suggestions_5000.csv')
 
-# Initialize AIML Kernel if available
+# Global variables
+ml_model = None
+ml_feature_columns = [f'Q{i}' for i in range(1, 13)]
+
+# Initialize AIML Kernel
 aiml_kernel = None
 if AIML_AVAILABLE:
     try:
-        aiml_kernel = aiml.Kernel()
-        # Ensure the path is correct relative to the script
-        aiml_kernel.learn(os.path.join(os.path.dirname(__file__), "aiml/career.aiml"))
-        # Set a default predicate for safe fallbacks
-        aiml_kernel.setPredicate("name", "CareerGuide")
-        print("AIML kernel loaded.")
+        aiml_path = os.path.join(os.path.dirname(__file__), "aiml/career.aiml")
+        if os.path.exists(aiml_path):
+            aiml_kernel = aiml.Kernel()
+            aiml_kernel.learn(aiml_path)
+            aiml_kernel.setPredicate("name", "CareerGuide")
+            print("AIML kernel loaded.")
+        else:
+            print(f"AIML file not found at {aiml_path}")
+            aiml_kernel = None
     except Exception as e:
         print(f"AIML load failed: {e}")
         aiml_kernel = None
 
-# ===============
-# ML Components
-# ===============
-MODEL_PATH = os.path.join(os.path.dirname(__file__), 'model.pkl')
-ml_model = None
-ml_feature_columns = ["subject", "problem", "projects", "environment", "motivation"]
-
 def load_model_if_exists():
     global ml_model
-    if SKLEARN_AVAILABLE and os.path.exists(MODEL_PATH):
+    if os.path.exists(MODEL_PATH):
         try:
             ml_model = joblib.load(MODEL_PATH)
-            print("ML model loaded.")
+            print("ML model loaded successfully.")
         except Exception as e:
             print(f"Failed to load ML model: {e}")
             ml_model = None
+    else:
+        print("No pre-trained model found at", MODEL_PATH)
 
 load_model_if_exists()
 
+@app.route(f'{API_PREFIX}/ml/train', methods=['POST'])
+def ml_train():
+    if not os.path.exists(DATASET_PATH):
+        return jsonify({'success': False, 'message': f'Dataset not found at {DATASET_PATH}'}), 404
+    try:
+        df = pd.read_csv(DATASET_PATH)
+        X = df[ml_feature_columns]
+        y = df['Career1']
+        preprocessor = ColumnTransformer(
+            transformers=[('cat', OneHotEncoder(handle_unknown='ignore'), ml_feature_columns)],
+            remainder='passthrough'
+        )
+        pipeline = Pipeline(steps=[
+            ('preprocessor', preprocessor),
+            ('classifier', RandomForestClassifier(n_estimators=100, random_state=42))
+        ])
+        pipeline.fit(X, y)
+        joblib.dump(pipeline, MODEL_PATH)
+        global ml_model
+        ml_model = pipeline
+        print(f"Model trained successfully and saved to {MODEL_PATH}")
+        return jsonify({'success': True, 'message': 'Model trained and saved successfully.'})
+    except Exception as e:
+        print(f"Error during model training: {e}")
+        return jsonify({'success': False, 'message': f'Model training failed: {str(e)}'}), 500
 
 @app.route(f'{API_PREFIX}/quiz/submit', methods=['POST'])
 def quiz_submit():
@@ -65,85 +90,37 @@ def quiz_submit():
     answers = data.get('answers', {})
 
     if not user_id:
-        return jsonify({ 'success': False, 'message': 'Missing userId' }), 400
+        return jsonify({'success': False, 'message': 'Missing userId'}), 400
 
-    # If ML model is trained, predict target career
-    career = None
-    if ml_model is not None and SKLEARN_AVAILABLE:
-        try:
-            # We must convert the input dictionary into the list of values the model expects
-            features_list = [answers.get(c, "") for c in ml_feature_columns]
-            
-            # Predict expects a list of samples, so we wrap the single sample in a list
-            career = ml_model.predict([features_list])[0]
-        except Exception as e:
-            print(f"ML prediction failed: {e}")
-            career = None
+    if not ml_model:
+        return jsonify({'success': False, 'message': 'ML model not trained. Please train the model first by sending a POST request to /api/ml/train.'}), 503
 
-    # Fallback simple rule-based
-    if not career:
-        career = 'Full Stack Developer'
-        # Check against string values based on input names in index.html
-        if answers.get('subject') == 'math':
-            career = 'Data Scientist'
-        elif answers.get('problem') == 'creative':
-            career = 'UX/UI Designer'
-        elif answers.get('motivation') == 'impact':
-            career = 'AI Ethics Consultant'
-
-    results = {
-        'recommendations': [career, 'Cloud Engineer', 'Project Manager', 'Technical Writer'],
-        'skillReadiness': random.randint(45, 90),
-        'targetCareer': career,
-        'rawAnswers': answers
-    }
-    return jsonify({ 'success': True, 'message': 'Recommendations generated by Flask AI service.', 'results': results })
-
-
-@app.route(f'{API_PREFIX}/ml/train', methods=['POST'])
-def ml_train():
-    if not SKLEARN_AVAILABLE:
-        return jsonify({ 'success': False, 'message': 'scikit-learn not available on server.' }), 400
-
-    payload = request.get_json(force=True, silent=True) or {}
-    dataset: List[Dict] = payload.get('dataset', [])
-    if not dataset or not isinstance(dataset, list):
-        return jsonify({ 'success': False, 'message': 'Provide dataset: [{ features..., label }]' }), 400
-
-    X = []
-    y = []
-    for row in dataset:
-        features = [str(row.get(col, '')) for col in ml_feature_columns]
-        label = row.get('label')
-        if label is None:
-            continue
-        X.append(features)
-        y.append(str(label))
-
-    if len(X) == 0:
-        return jsonify({ 'success': False, 'message': 'No valid rows with labels provided.' }), 400
-
-    # Build pipeline: OneHotEncoder for categorical features + RandomForest
     try:
-        # Create a preprocessor that applies OneHotEncoder to all feature columns
-        encoder = OneHotEncoder(handle_unknown='ignore')
-        preprocessor = ColumnTransformer([
-            ('cat', encoder, list(range(len(ml_feature_columns))))
-        ])
-        
-        clf = RandomForestClassifier(n_estimators=200, random_state=42)
-        pipeline = Pipeline([
-            ('prep', preprocessor),
-            ('clf', clf)
-        ])
-        pipeline.fit(X, y)
-        joblib.dump(pipeline, MODEL_PATH)
-        global ml_model
-        ml_model = pipeline
-        return jsonify({ 'success': True, 'message': 'Model trained and saved.' })
-    except Exception as e:
-        return jsonify({ 'success': False, 'message': f'Training failed: {e}' }), 500
+        input_df = pd.DataFrame([answers], columns=ml_feature_columns)
+        prediction = ml_model.predict(input_df)[0]
 
+        # --- NEW LOGIC TO PREVENT DUPLICATES AND LIMIT TO 3 ---
+        recommendations = [prediction]
+        fallback_careers = ['Software Developer', 'Data Scientist', 'AI Engineer', 'Product Manager', 'Cloud Engineer']
+        
+        for career in fallback_careers:
+            if len(recommendations) >= 3:
+                break
+            if career not in recommendations:
+                recommendations.append(career)
+        # --- END OF NEW LOGIC ---
+
+        results = {
+            'recommendations': recommendations,
+            'skillReadiness': random.randint(45, 90),
+            'targetCareer': prediction,
+            'rawAnswers': answers
+        }
+        
+        return jsonify({'success': True, 'message': 'Recommendations generated by the ML model.', 'results': results})
+    except Exception as e:
+        print(f"Error during prediction: {e}")
+        return jsonify({'success': False, 'message': f'Prediction failed: {str(e)}'}), 500
 
 @app.route(f'{API_PREFIX}/resume/analyze', methods=['POST'])
 def resume_analyze():
@@ -163,7 +140,6 @@ def resume_analyze():
     ]
     return jsonify({ 'success': True, 'message': f'Analysis complete for {file_name}.', 'score': score, 'feedback': feedback })
 
-
 @app.route(f'{API_PREFIX}/chatbot/query', methods=['POST'])
 def chatbot_query():
     data = request.get_json(force=True, silent=True) or {}
@@ -173,50 +149,30 @@ def chatbot_query():
     if not user_id:
         return jsonify({ 'success': False, 'message': 'Missing userId' }), 400
 
-    # Quick intent matcher (keyword-based) for higher quality defaults
     normalized = query.lower().strip()
     response = None
     intents = [
-        (['salary', 'pay', 'ctc', 'package'],
-         'Salaries vary by region and seniority. For a strong estimate: check recent reports (Levels.fyi, Glassdoor), filter by your city, and calibrate +/- 10% for skills and company tier.'),
-        (['roadmap', 'path', 'how to become', 'become'],
-         'A reliable roadmap: 1) Fundamentals (CS/Math or domain basics) 2) Core tools 3) Two portfolio projects 4) Mock interviews 5) Targeted applications (5–10/wk).'),
-        (['skills', 'learn', 'what skills'],
-         'Prioritize: problem solving, one primary language (Python/JS), data handling (SQL), and a cloud platform. Add role‑specific skills next (e.g., ML ops for DS, React for FE).'),
-        (['resume', 'cv'],
-         'Keep it 1 page (junior). Use action verbs + quantified impact. Mirror job keywords. Place projects above education if they’re stronger.'),
-        (['interview', 'prepare', 'behavioral'],
-         'Prep: daily timed practice (LeetCode/role tasks), 5 STAR stories (Situation–Task–Action–Result), and 2 mock interviews. Debrief after each session.')
+        (['salary', 'pay', 'ctc', 'package'], 'Salaries vary by region and seniority. For a strong estimate, check recent reports on Levels.fyi or Glassdoor.'),
+        (['roadmap', 'path', 'how to become'], 'A reliable roadmap is: 1) Fundamentals, 2) Core tools, 3) Portfolio projects, 4) Mock interviews, 5) Targeted applications.'),
+        (['skills', 'learn'], 'Prioritize problem-solving, a primary language (like Python/JS), data handling (SQL), and a cloud platform.'),
+        (['resume', 'cv'], 'Keep it to one page if you are a junior. Use action verbs and quantify your impact.'),
+        (['interview', 'prepare'], 'Practice daily with timed exercises, prepare STAR stories for behavioral questions, and do mock interviews.')
     ]
     for keys, text in intents:
         if any(k in normalized for k in keys):
             response = text
             break
 
-    # Try AIML next if available and no intent matched
-    if aiml_kernel is not None:
+    if aiml_kernel and not response:
         try:
-            if not response:
-                # AIML works best with uppercased patterns
-                response = aiml_kernel.respond(query.strip())
+            response = aiml_kernel.respond(query.strip())
         except Exception as e:
-            # CORRECTED: Ensure the f-string is correctly closed on the same line
             print(f"AIML respond failed: {e}")
-            response = None
-
-    # Fallback rule-based response
+    
     if not response:
-        lower = query.lower()
-        if 'salary' in lower:
-            response = 'Depending on your location and experience, salaries can vary widely. Consider reviewing market reports and salary surveys for current figures.'
-        else:
-            response = f'I see you asked about "{query}". Consider exploring foundational courses and building a small project to gain practical exposure.'
+        response = f'I see you asked about "{query}". It is a good practice to explore foundational courses and build a small project to gain practical exposure.'
 
     return jsonify({ 'success': True, 'response': response })
 
-
 if __name__ == '__main__':
-    # Changed default port from 5000 to 5001 to avoid "Address already in use" issues.
     app.run(host='0.0.0.0', port=5001, debug=True)
-
-
