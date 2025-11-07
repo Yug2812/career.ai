@@ -30,9 +30,17 @@ const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/
 
 /**
  * System Instruction defining the AI's role as a Career Guidance Counselor.
- * This ensures the model provides relevant and professional advice. (From user's provided snippet)
+ * This ensures the model provides relevant and professional advice.
  */
-const CAREER_SYSTEM_INSTRUCTION = "You are a professional, empathetic, and knowledgeable AI Career Guidance Counselor. Your goal is to help the user explore their career doubts, identify suitable paths, and provide guidance on skills, education, and industry trends. Keep responses focused, encouraging, and based on industry realities. Use a supportive and advisory tone.";
+const CAREER_SYSTEM_INSTRUCTION = `You are an expert AI Career Guidance Counselor. Your primary goal is to provide professional, empathetic, and actionable advice to help users navigate their career paths.
+
+Core Directives:
+1.  **Adopt a Persona:** Act as a friendly, knowledgeable, and encouraging career coach. Always be supportive.
+2.  **Be Specific and Actionable:** Do not give generic advice. Provide concrete, step-by-step guidance. If a user asks "how do I become a data scientist?", provide a clear learning path, mention specific skills (Python, SQL, Pandas), suggest project ideas, and recommend popular learning platforms (like Coursera, Udemy, or freeCodeCamp).
+3.  **Use Your Tools:** Leverage your web search capabilities to provide the most current information on salary expectations, popular technologies, and job market trends. When you provide data like salaries, mention that it's based on recent data.
+4.  **Ask Clarifying Questions:** If a user's query is vague (e.g., "I want a tech job"), ask follow-up questions to understand their interests, skills, and background before providing a recommendation. For example: "That's great! To give you the best advice, could you tell me what parts of technology you find most interesting? For example, do you enjoy building websites, working with data, or something else?"
+5.  **Structure Your Responses:** Use formatting like bolding for key terms and bullet points for lists to make your answers easy to read and digest.
+6.  **Maintain Focus:** Stick strictly to career-related topics. This includes resume building, interview preparation, skill development, salary negotiation, career changes, and job searching strategies. Do not answer questions outside of this scope.`;
 
 
 // Middleware Setup
@@ -283,45 +291,70 @@ app.post(`${API_URL_BASE}/quiz/submit`, async (req, res) => {
     }
 });
 
-app.post(`${API_URL_BASE}/resume/analyze`, async (req, res) => {
+app.post(`${API_URL_BASE}/skills/analyze-gap`, async (req, res) => {
     try {
-        const { userId, fileName } = req.body;
-        const user = await findUserById(userId);
-        if (!user) {
-            return res.status(404).json({ success: false, message: 'User not found.' });
+        const { currentSkills, targetCareer } = req.body;
+        if (!currentSkills || !targetCareer) {
+            return res.status(400).json({ success: false, message: 'Missing current skills or target career.' });
         }
 
-        if (AI_SERVICE_BASE) {
-            try {
-                const { data } = await axios.post(`${AI_SERVICE_BASE}/resume/analyze`, { userId, fileName }, { timeout: 10000 });
-                if (data && data.success && typeof data.score !== 'undefined' && data.feedback) {
-                    await updateUserById(userId, { resumeFeedback: { score: data.score, feedback: data.feedback } });
-                    return res.json({ success: true, message: data.message || `Analysis complete for ${fileName}.`, score: data.score, feedback: data.feedback });
-                }
-            } catch (err) {
-                console.warn('AI service (resume) failed, using mock:', err.message);
+        if (GEMINI_API_KEY) {
+            const prompt = `
+                Act as an expert career development coach. A user wants to transition into the role of a "${targetCareer}".
+                Their current skills are: "${currentSkills}".
+
+                Your task is to generate a comprehensive, actionable learning path for them in Markdown format. The plan must include the following sections:
+
+                ### 1. Skill Gap Analysis
+                - **Must-Have Skills:** List the absolute essential skills for a ${targetCareer} that the user is missing.
+                - **Good-to-Have Skills:** List supplementary skills that would make their profile stand out.
+
+                ### 2. Personalized Learning Path
+                Provide a step-by-step guide. For each step, include:
+                - **Skill to Learn:** The specific skill or concept.
+                - **Recommended Resources:** Suggest 1-2 specific, well-known online courses (e.g., from Coursera, Udemy, freeCodeCamp), books, or official documentation.
+                - **Project Idea:** A small, practical project to apply the skill.
+                - **Estimated Time:** A realistic timeframe (e.g., "2-3 weeks").
+                
+                Keep the tone encouraging and professional.
+            `;
+            
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }]
+            };
+
+            const { data } = await axios.post(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, payload, { timeout: 20000 });
+            const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+            if (responseText) {
+                return res.json({ success: true, learningPath: responseText });
             }
         }
+        
+        // Fallback mock response if Gemini is not available
+        const mockLearningPath = `
+            ### Your Personalized Learning Path to become a ${targetCareer}
+            
+            **Step 1: Strengthen Your Fundamentals**
+            * **Missing Skill:** Advanced JavaScript (ES6+).
+            * **Recommendation:** Take the "JavaScript: The Advanced Concepts" course on Udemy.
+            
+            **Step 2: Master a Frontend Framework**
+            * **Missing Skill:** React.js.
+            * **Recommendation:** Follow the official React documentation tutorial and build a small project.
+            
+            **Step 3: Build a Portfolio Project**
+            * **Recommendation:** Create a full-stack MERN application to demonstrate your new skills.
+        `;
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        res.json({ success: true, learningPath: mockLearningPath });
 
-        // --- MOCK AI LOGIC ---
-        const mockScore = Math.floor(Math.random() * (95 - 60 + 1)) + 60;
-        const mockFeedback = [
-            { item: "Targeted Keywords Match", score: mockScore > 80 ? 'Excellent' : 'Good' },
-            { item: "Formatting & Readability", score: 'Excellent' },
-            { item: "Experience Depth", score: 'Needs work' },
-            { item: "Action Verb Usage", score: 'Good' }
-        ];
-        const mockResults = { score: mockScore, feedback: mockFeedback };
-        await updateUserById(userId, { resumeFeedback: mockResults });
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        // --- END MOCK AI LOGIC ---
-
-        res.json({ success: true, message: `Analysis complete for ${fileName}.`, ...mockResults });
     } catch (err) {
-        console.error('Resume analyze error:', err.message);
-        res.status(500).json({ success: false, message: 'Server error analyzing resume.' });
+        console.error('Skills Gap Analysis error:', err.message);
+        res.status(500).json({ success: false, message: 'Server error generating learning path.' });
     }
 });
+
 
 app.post(`${API_URL_BASE}/chatbot/query`, async (req, res) => {
     try {
@@ -347,7 +380,9 @@ app.post(`${API_URL_BASE}/chatbot/query`, async (req, res) => {
                     contents: contents,
                     systemInstruction: {
                         parts: [{ text: CAREER_SYSTEM_INSTRUCTION }]
-                    }
+                    },
+                    // Add Google Search grounding for more factual, up-to-date answers
+                    tools: [{ "google_search": {} }],
                 };
 
                 const { data } = await axios.post(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, payload, { timeout: 15000 });
@@ -428,5 +463,4 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
     console.log(`🚀 Backend API Server running on http://localhost:${PORT}`);
 });
-
 

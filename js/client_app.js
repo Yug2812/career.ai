@@ -204,8 +204,8 @@ function router() {
     let fullHash = window.location.hash.slice(1);
     let [hash, queryString] = fullHash.split('?');
 
-    const pages = ['landingPage', 'loginPage', 'registerPage', 'helpPage', 'dashboardPage', 'forgotPasswordPage', 'termsPage'];
-    const sections = ['quizSection', 'recommendationsSection', 'resumeSection', 'resumeBuilderSection', 'chatbotComingSoonSection', 'profileSection'];
+    const pages = ['landingPage', 'loginPage', 'registerPage', 'helpPage', 'dashboardPage', 'forgotPasswordPage', 'termsPage', 'privacyPage'];
+    const sections = ['quizSection', 'recommendationsSection', 'skillsGapSection', 'resumeBuilderSection', 'chatbotSection', 'profileSection'];
 
     if (sections.includes(hash)) {
         if (Store.state.isLoggedIn) {
@@ -246,7 +246,6 @@ function getHashQueryParam(key) {
 
 // --- RENDERING FUNCTIONS ---
 
-// **MODIFIED**: Renders clickable career recommendations that trigger the modal
 function renderRecommendations(results) {
     const recommendationsList = document.getElementById('recommendationsList');
     if (!recommendationsList) return;
@@ -550,13 +549,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (resumeBuilderForm) {
         resumeBuilderForm.addEventListener('submit', handleResumeBuild);
     }
+    
+    const skillsGapForm = document.getElementById('skillsGapForm');
+    if(skillsGapForm) {
+        skillsGapForm.addEventListener('submit', handleSkillsGapAnalysis);
+    }
 
     const chatbotForm = document.getElementById('chatbotForm');
     if (chatbotForm) {
         chatbotForm.addEventListener('submit', handleChatbotSubmit);
     }
-
-    // **NEW**: Event listener for the roadmap modal
+    
     const roadmapModal = document.getElementById('roadmapModal');
     if (roadmapModal) {
         roadmapModal.addEventListener('show.bs.modal', function (event) {
@@ -697,11 +700,8 @@ async function handleProfileUpdate(event) {
 
 async function handleResumeBuild(event) {
     event.preventDefault();
-    const userId = Store.state.userId;
-    if (!userId) return;
-
-    const goal = document.getElementById('builderGoal').value;
-    const highlights = document.getElementById('builderHighlights').value;
+    const goal = document.getElementById('builderGoal')?.value;
+    const highlights = document.getElementById('builderHighlights')?.value;
     const resultArea = document.getElementById('builderResultArea');
     const submitBtn = event.target.querySelector('button[type="submit"]');
 
@@ -710,24 +710,15 @@ async function handleResumeBuild(event) {
     resultArea.classList.add('d-none');
 
     try {
-        await new Promise(resolve => setTimeout(resolve, 2500));
+        // Mock delay for UI
+        await new Promise(resolve => setTimeout(resolve, 1500));
 
         const mockResumeContent = `
             <h4 class="text-primary">${Store.state.userName || 'Jane Doe'}</h4>
-            <p class="small text-muted mb-4">${Store.state.userEmail || 'user@example.com'} | Phone: (555) 123-4567 | LinkedIn.com/in/user</p>
+            <p class="small text-muted mb-4">${Store.state.userEmail || 'user@example.com'}</p>
 
             <h5 class="fw-bold border-bottom pb-1">Summary</h5>
-            <p>Highly motivated professional targeting a role as a <strong>${goal}</strong>. Brings ${highlights.length > 50 ? highlights.substring(0, 50) + '...' : highlights}. Successfully translated complex business requirements into robust technical solutions.</p>
-
-            <h5 class="fw-bold border-bottom pb-1 mt-4">Experience</h5>
-            <p class="mb-1"><strong>Senior Consultant</strong> | Tech Solutions | 2020 - Present</p>
-            <ul>
-                <li>Led a team of five developers in migrating legacy systems to modern cloud infrastructure (AWS/Azure).</li>
-                <li>Achieved 25% efficiency gain in core processes using Python automation scripts.</li>
-            </ul>
-
-            <h5 class="fw-bold border-bottom pb-1 mt-4">Skills</h5>
-            <p><strong>Targeted Skills for ${goal}:</strong> JavaScript, Python, Cloud (AWS/Azure), SQL, Data Modeling.</p>
+            <p>Highly motivated professional targeting a role as a <strong>${goal}</strong>. ${highlights}</p>
         `;
 
         document.getElementById('resumeDraftContent').innerHTML = mockResumeContent;
@@ -742,6 +733,51 @@ async function handleResumeBuild(event) {
         submitBtn.disabled = false;
     }
 }
+
+async function handleSkillsGapAnalysis(event) {
+    event.preventDefault();
+    const currentSkills = document.getElementById('currentSkills').value;
+    const targetCareer = document.getElementById('targetCareer').value;
+    const resultDiv = document.getElementById('learningPathResult');
+    const contentDiv = document.getElementById('learningPathContent');
+    const submitBtn = event.target.querySelector('button[type="submit"]');
+
+    submitBtn.textContent = 'Analyzing...';
+    submitBtn.disabled = true;
+    contentDiv.innerHTML = '<div class="d-flex justify-content-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+    resultDiv.classList.remove('d-none');
+
+    try {
+        const response = await axios.post(`${API_URL}/skills/analyze-gap`, {
+            currentSkills,
+            targetCareer
+        });
+
+        if (response.data.success) {
+             let html = response.data.learningPath
+                .replace(/### (.*$)/gim, '<h4>$1</h4>')
+                .replace(/\*\*Step \d+: (.*)\*\*/gim, '<h5>$1</h5>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/^\* (.*$)/gim, '<li>$1</li>')
+                .replace(/\n/g, '<br />');
+            
+            // This regex helps to correctly form <ul> and <li> tags from markdown lists
+            html = html.replace(/<br \/><li>/g, '<li>');
+            html = html.replace(/(<li>.*<\/li>)/g, '<ul>$1</ul>').replace(/<\/ul><br \/><ul>/g, '');
+
+            contentDiv.innerHTML = html;
+        } else {
+            throw new Error(response.data.message);
+        }
+    } catch (error) {
+        console.error('Skills Gap API Error:', error);
+        contentDiv.innerHTML = `<p class="text-danger">An error occurred: ${error.message}</p>`;
+    } finally {
+        submitBtn.textContent = 'Analyze and Generate Learning Path';
+        submitBtn.disabled = false;
+    }
+}
+
 
 async function handleChatbotSubmit(event) {
     event.preventDefault();
@@ -795,3 +831,4 @@ async function handleChatbotSubmit(event) {
         sendBtn.disabled = false;
     }
 }
+

@@ -94,10 +94,11 @@
                             <ul class="list-unstyled mb-0">
                                 <li class="mb-3"><i class="fas fa-check text-primary me-2"></i>AI-driven career path
                                     prediction with trainable model</li>
-                                <li class="mb-3"><i class="fas fa-check text-primary me-2"></i>AIML chatbot for instant
+                                <li class="mb-3"><i class="fas fa-check text-primary me-2"></i>Advanced AI chatbot for
+                                    instant
                                     Q&A</li>
                                 <li class="mb-3"><i class="fas fa-check text-primary me-2"></i>Actionable roadmaps and
-                                    resume insights</li>
+                                    skills gap analysis</li>
                             </ul>
                         </div>
                     </div>
@@ -307,8 +308,13 @@
                                     </a>
                                 </li>
                                 <li class="nav-item mb-2">
-                                    <a class="btn btn-outline-primary w-100 text-start" href="#resumeSection">
-                                        <i class="fas fa-file-alt me-2"></i>My Resume
+                                    <a class="btn btn-outline-primary w-100 text-start" href="#careerPathsSection">
+                                        <i class="fas fa-route me-2"></i>Career Paths
+                                    </a>
+                                </li>
+                                <li class="nav-item mb-2">
+                                    <a class="btn btn-outline-primary w-100 text-start" href="#skillsGapSection">
+                                        <i class="fas fa-tasks me-2"></i>Skills Gap Analysis
                                     </a>
                                 </li>
                                 <li class="nav-item mb-2">
@@ -317,8 +323,7 @@
                                     </a>
                                 </li>
                                 <li class="nav-item mb-2">
-                                    <a class="btn btn-outline-primary w-100 text-start"
-                                        href="#chatbotComingSoonSection">
+                                    <a class="btn btn-outline-primary w-100 text-start" href="#chatbotSection">
                                         <i class="fas fa-robot me-2"></i>AI Career Chatbot
                                     </a>
                                 </li>
@@ -669,6 +674,56 @@
                                 </div>
                             </div>
 
+                            <div id="careerPathsSection" class="content-section d-none">
+                                <h3 class="mb-4 fw-bold">Explore Career Paths</h3>
+                                <p class="text-muted">Select a career from the dropdown to view a detailed step-by-step
+                                    roadmap.</p>
+                                <div class="mb-4">
+                                    <div class="dropdown">
+                                        <button class="btn btn-primary dropdown-toggle" type="button"
+                                            id="careerPathDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Select a Career
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="careerPathDropdown"
+                                            id="careerPathOptions">
+                                            <!-- Career options will be populated by JavaScript -->
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div id="careerPathDetail" class="card p-4 d-none">
+                                    <!-- Selected career path will be displayed here -->
+                                </div>
+                            </div>
+
+                            <div id="skillsGapSection" class="content-section d-none">
+                                <h3 class="mb-4 fw-bold">Skills Gap Analysis & Learning Path</h3>
+                                <p class="text-muted">Enter your current skills and a career you're interested in to
+                                    generate a personalized learning path.</p>
+                                <form id="skillsGapForm">
+                                    <div class="mb-3">
+                                        <label for="currentSkills" class="form-label">Your Current Skills
+                                            (comma-separated)</label>
+                                        <input type="text" class="form-control" id="currentSkills"
+                                            placeholder="e.g., JavaScript, HTML, CSS, basic Python" required />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="targetCareer" class="form-label">Your Target Career</label>
+                                        <input type="text" class="form-control" id="targetCareer"
+                                            placeholder="e.g., AI Engineer" required />
+                                    </div>
+                                    <button type="submit" class="btn btn-primary fw-bold">Analyze and Generate Learning
+                                        Path</button>
+                                </form>
+                                <div id="learningPathResult" class="mt-4 card p-4 d-none">
+                                    <h5 class="fw-bold">Your Personalized Learning Path</h5>
+                                    <hr>
+                                    <div id="learningPathContent">
+                                        <!-- AI-generated learning path will appear here -->
+                                    </div>
+                                </div>
+                            </div>
+
+
                             <div id="resumeBuilderSection" class="content-section d-none">
                                 <h3 class="mb-4 fw-bold">AI Resume Builder</h3>
                                 <p class="text-muted">Generate a professional resume tailored to your career goals and
@@ -704,7 +759,7 @@
                                             class="fas fa-download me-2"></i>Download PDF</button>
                                 </div>
                             </div>
-                            <div id="chatbotComingSoonSection" class="content-section d-none">
+                            <div id="chatbotSection" class="content-section d-none">
                                 <h3 class="mb-4 fw-bold">AI Career Chatbot</h3>
                                 <p class="text-muted">Ask our AI any career question for real-time guidance.</p>
 
@@ -774,6 +829,54 @@
             </div>
         </div>
 
+        <div id="privacyPage" class="d-none">
+            <main class="container py-5">
+                <h2 class="fw-bold mb-4 text-center">Privacy Policy</h2>
+                <div class="card p-5">
+                    <p>Your privacy is important to us. It is CareerGuide.ai's policy to respect your privacy regarding
+                        any information we may collect from you across our website.</p>
+
+                    <h4 class="mt-4 fw-bold">1. Information We Collect</h4>
+                    <p>We only ask for personal information when we truly need it to provide a service to you. We
+                        collect it by fair and lawful means, with your knowledge and consent. We also let you know why
+                        we’re collecting it and how it will be used.</p>
+                    <p>Information we collect includes: name, email address, phone number, quiz responses, and resume
+                        data. This data is used to personalize your career recommendations and improve our services.</p>
+
+                    <h4 class="mt-4 fw-bold">2. How We Use Your Information</h4>
+                    <p>We use the information we collect in various ways, including to:</p>
+                    <ul>
+                        <li>Provide, operate, and maintain our website</li>
+                        <li>Improve, personalize, and expand our website</li>
+                        <li>Understand and analyze how you use our website</li>
+                        <li>Develop new products, services, features, and functionality</li>
+                        <li>Communicate with you, either directly or through one of our partners, including for customer
+                            service, to provide you with updates and other information relating to the website, and for
+                            marketing and promotional purposes</li>
+                        <li>Send you emails</li>
+                        <li>Find and prevent fraud</li>
+                    </ul>
+
+                    <h4 class="mt-4 fw-bold">3. Log Files</h4>
+                    <p>CareerGuide.ai follows a standard procedure of using log files. These files log visitors when
+                        they visit websites. All hosting companies do this and a part of hosting services' analytics.
+                        The information collected by log files include internet protocol (IP) addresses, browser type,
+                        Internet Service Provider (ISP), date and time stamp, referring/exit pages, and possibly the
+                        number of clicks. These are not linked to any information that is personally identifiable. The
+                        purpose of the information is for analyzing trends, administering the site, tracking users'
+                        movement on the website, and gathering demographic information.</p>
+
+                    <h4 class="mt-4 fw-bold">4. Security</h4>
+                    <p>The security of your personal information is important to us, but remember that no method of
+                        transmission over the Internet, or method of electronic storage, is 100% secure. While we strive
+                        to use commercially acceptable means to protect your personal information, we cannot guarantee
+                        its absolute security.</p>
+
+                    <p class="mt-4 text-muted small">Last updated: October 2025</p>
+                </div>
+            </main>
+        </div>
+
         <div id="termsPage" class="d-none">
             <main class="container py-5">
                 <h2 class="fw-bold mb-4 text-center">Terms & Conditions</h2>
@@ -815,7 +918,7 @@
                         <a href="#termsPage" class="text-decoration-none d-block">Terms & Conditions</a>
                     </div>
                     <div class="col-6">
-                        <a href="#" class="text-decoration-none d-block">Customer Care</a>
+                        <a href="#privacyPage" class="text-decoration-none d-block">Privacy Policy</a>
                     </div>
                 </div>
             </div>
@@ -825,6 +928,25 @@
     <button id="scrollToTopBtn" title="Go to top">
         <i class="fas fa-arrow-up"></i>
     </button>
+
+    <!-- START: Career Roadmap Modal -->
+    <div class="modal fade" id="roadmapModal" tabindex="-1" aria-labelledby="roadmapModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="roadmapModalLabel">Career Roadmap</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Roadmap content will be dynamically inserted here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END: Career Roadmap Modal -->
 
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
