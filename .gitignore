@@ -6,3 +6,5 @@ node_modules/
 
 # macOS system file
 .DS_Store
+# Large-trained models
+ai_service/model.pkl
