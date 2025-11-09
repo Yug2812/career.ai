@@ -205,9 +205,7 @@ function router() {
     let [hash, queryString] = fullHash.split('?');
 
     const pages = ['landingPage', 'loginPage', 'registerPage', 'helpPage', 'dashboardPage', 'forgotPasswordPage', 'termsPage', 'privacyPage'];
-    const sections = ['quizSection', 'recommendationsSection', 'skillsGapSection', 'resumeBuilderSection', 'chatbotSection', 'profileSection'];
-
-    if (sections.includes(hash)) {
+    const sections = ['quizSection', 'recommendationsSection', 'careerPathsSection', 'skillsGapSection', 'trendingCareersSection', 'chatbotSection', 'profileSection']; if (sections.includes(hash)) {
         if (Store.state.isLoggedIn) {
             Store.update({
                 currentView: 'dashboardPage',
@@ -332,7 +330,14 @@ function renderApp(state) {
             activeLink.classList.remove('btn-outline-primary');
         }
     }
-
+    if (state.currentView === 'dashboardPage' && state.currentSection === 'careerPathsSection') {
+        // Call the function to build the dropdown
+        // We use a flag to prevent re-building it every time
+        if (!Store.state.careerPathsLoaded) {
+            Store.update({ careerPathsLoaded: true }); // Set flag
+            populateCareerPathDropdown();
+        }
+    }
     updateNavbar(state);
     if (state.isLoggedIn) {
         document.querySelectorAll('#userName, #profileName, #navUserName').forEach(el => {
@@ -347,6 +352,14 @@ function renderApp(state) {
 
         renderRecommendations(state.quizResults);
         renderChat(state);
+    }
+    if (state.currentView === 'dashboardPage' && state.currentSection === 'trendingCareersSection') {
+        // Call the function to load data when this section becomes visible
+        // We use a flag to prevent re-loading every time the user clicks
+        if (!Store.state.trendingCareersLoaded) {
+            Store.update({ trendingCareersLoaded: true }); // Set flag
+            loadTrendingCareers();
+        }
     }
 
     document.querySelectorAll('#mainNavbar .nav-link').forEach(link => {
@@ -384,8 +397,7 @@ function updateNavbar(state) {
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                     <li><a class="dropdown-item" href="#profileSection">Profile</a></li>
-                    <li><a class="dropdown-item" href="#resumeBuilderSection">Resume Builder</a></li>
-                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="#trendingCareersSection">Trending Careers</a></li>                    <li><hr class="dropdown-divider"></li>
                     <li>
                         <button class="dropdown-item" id="themeToggleBtnDashboard" aria-label="Toggle Day/Night Theme">
                             <i class="fas fa-sun me-2"></i>Toggle Theme
@@ -545,11 +557,7 @@ document.addEventListener('DOMContentLoaded', () => {
         profileForm.addEventListener('submit', handleProfileUpdate);
     }
 
-    const resumeBuilderForm = document.getElementById('resumeBuilderForm');
-    if (resumeBuilderForm) {
-        resumeBuilderForm.addEventListener('submit', handleResumeBuild);
-    }
-    
+
     const skillsGapForm = document.getElementById('skillsGapForm');
     if(skillsGapForm) {
         skillsGapForm.addEventListener('submit', handleSkillsGapAnalysis);
@@ -559,7 +567,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (chatbotForm) {
         chatbotForm.addEventListener('submit', handleChatbotSubmit);
     }
-    
+
     const roadmapModal = document.getElementById('roadmapModal');
     if (roadmapModal) {
         roadmapModal.addEventListener('show.bs.modal', function (event) {
@@ -698,41 +706,7 @@ async function handleProfileUpdate(event) {
     }
 }
 
-async function handleResumeBuild(event) {
-    event.preventDefault();
-    const goal = document.getElementById('builderGoal')?.value;
-    const highlights = document.getElementById('builderHighlights')?.value;
-    const resultArea = document.getElementById('builderResultArea');
-    const submitBtn = event.target.querySelector('button[type="submit"]');
 
-    submitBtn.textContent = 'Generating...';
-    submitBtn.disabled = true;
-    resultArea.classList.add('d-none');
-
-    try {
-        // Mock delay for UI
-        await new Promise(resolve => setTimeout(resolve, 1500));
-
-        const mockResumeContent = `
-            <h4 class="text-primary">${Store.state.userName || 'Jane Doe'}</h4>
-            <p class="small text-muted mb-4">${Store.state.userEmail || 'user@example.com'}</p>
-
-            <h5 class="fw-bold border-bottom pb-1">Summary</h5>
-            <p>Highly motivated professional targeting a role as a <strong>${goal}</strong>. ${highlights}</p>
-        `;
-
-        document.getElementById('resumeDraftContent').innerHTML = mockResumeContent;
-        resultArea.classList.remove('d-none');
-        alert('Resume draft generated!');
-
-    } catch (error) {
-        console.error('Resume Builder Error:', error);
-        alert('An error occurred during resume generation.');
-    } finally {
-        submitBtn.textContent = 'Generate Resume Draft';
-        submitBtn.disabled = false;
-    }
-}
 
 async function handleSkillsGapAnalysis(event) {
     event.preventDefault();
@@ -754,13 +728,13 @@ async function handleSkillsGapAnalysis(event) {
         });
 
         if (response.data.success) {
-             let html = response.data.learningPath
+            let html = response.data.learningPath
                 .replace(/### (.*$)/gim, '<h4>$1</h4>')
                 .replace(/\*\*Step \d+: (.*)\*\*/gim, '<h5>$1</h5>')
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                 .replace(/^\* (.*$)/gim, '<li>$1</li>')
                 .replace(/\n/g, '<br />');
-            
+
             // This regex helps to correctly form <ul> and <li> tags from markdown lists
             html = html.replace(/<br \/><li>/g, '<li>');
             html = html.replace(/(<li>.*<\/li>)/g, '<ul>$1</ul>').replace(/<\/ul><br \/><ul>/g, '');
@@ -831,4 +805,127 @@ async function handleChatbotSubmit(event) {
         sendBtn.disabled = false;
     }
 }
+async function loadTrendingCareers() {
+    const listEl = document.getElementById('trendingCareersList');
+    if (!listEl) return;
 
+    try {
+        // This calls the new endpoint you made in backend_server.js
+        const response = await axios.get(`${API_URL}/careers/trending`);
+
+        if (response.data.success) {
+            const trends = response.data.trends;
+            listEl.innerHTML = ''; // Clear spinner
+
+            if (!trends || trends.length === 0) {
+                listEl.innerHTML = '<p class="text-muted">No trending careers found at this time.</p>';
+                return;
+            }
+
+            trends.forEach(career => {
+                const skillsHtml = career.skills.map(skill =>
+                    // Using Bootstrap utility classes for a soft badge look
+                    `<span class="badge bg-primary-soft text-primary me-1 mb-1">${skill}</span>`
+                ).join('');
+
+                listEl.innerHTML += `
+                    <div class="col-md-6">
+                        <div class="card p-3 h-100">
+                            <h5 class="fw-bold">${career.title}</h5>
+                            <p class="text-muted small">${career.description}</p>
+                            <div class="mt-auto">
+                                <strong>Key Skills:</strong>
+                                <div class="mt-2">${skillsHtml}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        } else {
+            throw new Error(response.data.message);
+        }
+    } catch (error) {
+        // --- THIS IS THE MODIFIED FALLBACK LOGIC ---
+        console.error('Failed to load trending careers (showing fallback):', error);
+        listEl.innerHTML = ''; // Clear the spinner
+
+        // Define the fallback trend
+        const fallbackTrend = {
+            title: "Data Scientist (Offline Example)",
+            description: "Analyzes complex data sets to extract insights and help businesses make better decisions.",
+            skills: ["Python", "SQL", "Tableau", "Statistics"]
+        };
+
+        // Render the fallback trend
+        const skillsHtml = fallbackTrend.skills.map(skill =>
+            `<span class="badge bg-primary-soft text-primary me-1 mb-1">${skill}</span>`
+        ).join('');
+
+        listEl.innerHTML += `
+            <div class="col-12">
+                 <p class="text-danger small mb-2">Could not load live trends. Showing an example career instead.</p>
+            </div>
+            <div class="col-md-6">
+                <div class="card p-3 h-100">
+                    <h5 class="fw-bold">${fallbackTrend.title}</h5>
+                    <p class="text-muted small">${fallbackTrend.description}</p>
+                    <div class="mt-auto">
+                        <strong>Key Skills:</strong>
+                        <div class="mt-2">${skillsHtml}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+        // --- END OF MODIFICATION ---
+
+        Store.update({ trendingCareersLoaded: false }); // Allow retrying
+    }
+}
+function populateCareerPathDropdown() {
+    const optionsMenu = document.getElementById('careerPathOptions');
+    const detailView = document.getElementById('careerPathDetail');
+    const dropdownButton = document.getElementById('careerPathDropdown');
+    if (!optionsMenu) return;
+
+    optionsMenu.innerHTML = '';
+
+    // Loop over all the roadmaps defined at the top of the file
+    for (const careerTitle of Object.keys(careerRoadmaps)) {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.className = 'dropdown-item';
+        a.href = '#';
+        a.textContent = careerTitle;
+        a.dataset.career = careerTitle; // Store the key
+
+        // Add the click listener for this item
+        a.addEventListener('click', function (e) {
+            e.preventDefault();
+            const selectedCareer = e.target.dataset.career;
+            const roadmap = careerRoadmaps[selectedCareer];
+
+            // Update the button text
+            dropdownButton.textContent = selectedCareer;
+
+            // Build the HTML for the roadmap steps
+            let stepsHtml = `<h4>${roadmap.title}</h4><p class="text-muted">${roadmap.focus}</p><hr/>`;
+            roadmap.steps.forEach(step => {
+                stepsHtml += `<h5>${step.title}</h5><ul>`;
+                step.points.forEach(point => {
+                    stepsHtml += `<li>${point}</li>`;
+                });
+                if (step.resources) {
+                    stepsHtml += `<li class="small"><strong>Resources:</strong> ${step.resources}</li>`;
+                }
+                stepsHtml += `</ul>`;
+            });
+
+            // Show the detail view
+            detailView.innerHTML = stepsHtml;
+            detailView.classList.remove('d-none');
+        });
+
+        li.appendChild(a);
+        optionsMenu.appendChild(li);
+    }
+}

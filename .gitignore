@@ -1,0 +1,8 @@
+# Secret keys
+.env
+
+# Dependencies folder (should never be on GitHub)
+node_modules/
+
+# macOS system file
+.DS_Store

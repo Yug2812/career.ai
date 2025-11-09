@@ -318,8 +318,8 @@
                                     </a>
                                 </li>
                                 <li class="nav-item mb-2">
-                                    <a class="btn btn-outline-primary w-100 text-start" href="#resumeBuilderSection">
-                                        <i class="fas fa-id-card me-2"></i>AI Resume Builder
+                                    <a class="btn btn-outline-primary w-100 text-start" href="#trendingCareersSection">
+                                        <i class="fas fa-chart-line me-2"></i>Trending Careers
                                     </a>
                                 </li>
                                 <li class="nav-item mb-2">
@@ -686,13 +686,11 @@
                                         </button>
                                         <ul class="dropdown-menu" aria-labelledby="careerPathDropdown"
                                             id="careerPathOptions">
-                                            <!-- Career options will be populated by JavaScript -->
-                                        </ul>
+                                            </ul>
                                     </div>
                                 </div>
                                 <div id="careerPathDetail" class="card p-4 d-none">
-                                    <!-- Selected career path will be displayed here -->
-                                </div>
+                                    </div>
                             </div>
 
                             <div id="skillsGapSection" class="content-section d-none">
@@ -718,51 +716,30 @@
                                     <h5 class="fw-bold">Your Personalized Learning Path</h5>
                                     <hr>
                                     <div id="learningPathContent">
-                                        <!-- AI-generated learning path will appear here -->
-                                    </div>
+                                        </div>
                                 </div>
                             </div>
 
 
-                            <div id="resumeBuilderSection" class="content-section d-none">
-                                <h3 class="mb-4 fw-bold">AI Resume Builder</h3>
-                                <p class="text-muted">Generate a professional resume tailored to your career goals and
-                                    profile.</p>
-                                <div class="card p-4 mb-4">
-                                    <h5 class="fw-bold mb-3">Generate or Edit Your Resume</h5>
-                                    <form id="resumeBuilderForm">
-                                        <div class="mb-3">
-                                            <label for="builderGoal" class="form-label">Target Career Goal (e.g., Senior
-                                                Software Engineer)</label>
-                                            <input type="text" class="form-control" id="builderGoal" required
-                                                placeholder="What job are you aiming for?" />
+                            <div id="trendingCareersSection" class="content-section d-none">
+                                <h3 class="mb-4 fw-bold">Trending Careers Dashboard</h3>
+                                <p class="text-muted">
+                                    Discover the most in-demand careers right now, powered by real-time market data.
+                                </p>
+                                <div id="trendingCareersList" class="row g-4">
+                                    <div class="col-12 text-center">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading trending careers...</span>
                                         </div>
-                                        <div class="mb-3">
-                                            <label for="builderHighlights" class="form-label">Key
-                                                Experience/Highlights</label>
-                                            <textarea class="form-control" id="builderHighlights" rows="5" required
-                                                placeholder="Summarize your past experience, skills, and biggest achievements."></textarea>
-                                        </div>
-                                        <button type="submit" class="btn btn-primary fw-bold">Generate Resume
-                                            Draft</button>
-                                    </form>
-                                </div>
-
-                                <div id="builderResultArea" class="card p-4 d-none">
-                                    <h5 class="fw-bold mb-3">AI-Generated Resume Draft</h5>
-                                    <p class="text-muted" id="draftSummary">A professional draft is ready! Review the
-                                        content below.</p>
-                                    <div id="resumeDraftContent" class="p-3 border rounded">
-                                        <p>Loading...</p>
+                                        <p class="mt-2">Fetching live career trends...</p>
                                     </div>
-                                    <button class="btn btn-success mt-3 fw-bold"><i
-                                            class="fas fa-download me-2"></i>Download PDF</button>
                                 </div>
                             </div>
+                            
                             <div id="chatbotSection" class="content-section d-none">
                                 <h3 class="mb-4 fw-bold">AI Career Chatbot</h3>
                                 <p class="text-muted">Ask our AI any career question for real-time guidance.</p>
-
+    
                                 <div class="chatbot-container card p-3 mb-4 h-96 d-flex flex-column">
                                     <div id="chatMessages"
                                         class="flex-grow-1 overflow-auto p-2 mb-3 border rounded bg-light">
@@ -929,7 +906,6 @@
         <i class="fas fa-arrow-up"></i>
     </button>
 
-    <!-- START: Career Roadmap Modal -->
     <div class="modal fade" id="roadmapModal" tabindex="-1" aria-labelledby="roadmapModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
@@ -938,17 +914,13 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <!-- Roadmap content will be dynamically inserted here -->
-                </div>
+                    </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
     </div>
-    <!-- END: Career Roadmap Modal -->
-
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>

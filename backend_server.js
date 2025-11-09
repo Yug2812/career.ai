@@ -355,7 +355,58 @@ app.post(`${API_URL_BASE}/skills/analyze-gap`, async (req, res) => {
     }
 });
 
+// ... after the /api/skills/analyze-gap route ...
 
+app.get(`${API_URL_BASE}/careers/trending`, async (req, res) => {
+    if (!GEMINI_API_KEY) {
+        return res.status(503).json({ success: false, message: 'AI service not configured.' });
+    }
+
+    try {
+        const prompt = `
+            What are the top 5 trending tech careers right now? 
+            For each career, provide:
+            1. "title": The career title.
+            2. "description": A one-sentence description of the role.
+            3. "skills": A list of 3-4 essential skills.
+
+            Return your answer *only* as a valid JSON array. Do not include any text before or after the JSON.
+            Example format:
+            [
+                { "title": "AI Engineer", "description": "...", "skills": ["Python", "TensorFlow", "NLP"] }
+            ]
+        `;
+        
+        const payload = {
+            contents: [{ parts: [{ text: prompt }] }],
+            // Add Google Search grounding for real-time data
+            tools: [{ "google_search": {} }], 
+        };
+
+        const { data } = await axios.post(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, payload, { timeout: 20000 });
+        
+        let responseText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        
+        if (!responseText) {
+            throw new Error('No valid response from AI.');
+        }
+
+        // Clean the response to ensure it's valid JSON
+        responseText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+        
+        const trends = JSON.parse(responseText);
+        res.json({ success: true, trends });
+
+    } catch (err) {
+        console.error('Trending Careers error:', err.message);
+        if (err.response) {
+            console.error('Gemini Error Data:', JSON.stringify(err.response.data));
+        }
+        res.status(500).json({ success: false, message: 'Server error generating trending careers.' });
+    }
+});
+
+// ... the /api/chatbot/query route starts here ...
 app.post(`${API_URL_BASE}/chatbot/query`, async (req, res) => {
     try {
         // Updated to receive full history from client
